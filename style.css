@@ -13,3 +13,15 @@ body {
       color: rgba(255,255,255,.85);
   }
   
+.packet {
+    animation: ball-move 1s linear infinite;
+    offset-path: "M 440.01 116 L 440.01 221";
+}
+
+@keyframes ball-move {
+    from {
+        offset-distance: 0%;
+    } to {
+        offset-distance: 100%
+    }
+}
