@@ -73,10 +73,27 @@ document.addEventListener("DOMContentLoaded", function() {
     svg_src.addEventListener("load",function() {
 
         // Set reference to SVG content
-        svg = svg_src.contentDocument.getElementById("svg");
+        svg = svg_src.getSVGDocument().querySelector("svg");
 
+        // Add animation style to SVG
+        let anim_style = document.createElementNS("http://www.w3.org/2000/svg", 'style');
+        anim_style.innerHTML = `
+            <style>
+                @keyframes ball-move {
+                    from {
+                        offset-distance: 0%;
+                    } to {
+                        offset-distance: 100%
+                    }
+                }
+            </style>
+        `;
+        svg.appendChild(anim_style);
+        
         // Set reference to all cables in SVG
-        cables = svg.getElementsByClassName("cable");
+        // Drawio does not allow to set a class name for svg elements
+        //  hence all cables have a stroke with color "#fffffe"
+        cables = svg_src.getSVGDocument().querySelector("svg").querySelectorAll('[stroke="#fffffe"]');
 
         // Start packet spawn
         var intervalId = window.setInterval(function(){
