@@ -1,0 +1,28 @@
+#network {
+    background-color: #141414;
+    max-width: 100vh;
+    max-height: 100vw;
+
+    border: 1px solid #ff0000;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+}
+
+.packet {
+    animation-name: ball-move;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    offset-distance: 0%;
+    speed: 1s
+}
+
+@keyframes ball-move {
+    from {
+        offset-distance: 0%;
+    } to {
+        offset-distance: 100%
+    }
+}

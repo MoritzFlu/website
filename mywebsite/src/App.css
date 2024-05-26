@@ -1,0 +1,10 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  background-color: #141414;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+}
