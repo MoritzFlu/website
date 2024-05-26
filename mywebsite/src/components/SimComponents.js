@@ -35,6 +35,7 @@ class SimPort {
     link
     speed = 1000;
     parent
+    id
 
     // Set to true if this animations over this link have to be played in reverse
     reversed = false;
@@ -42,7 +43,8 @@ class SimPort {
     l2Addr
     l3Addr
 
-    constructor(parent, link, speed) {
+    constructor(parent, link, speed, id) {
+        this.id = id;
         this.link = link;
         this.speed = speed;
         this.parent = parent;
@@ -60,7 +62,7 @@ class SimPort {
 
     // Passes packet to parent switch node for handling
     receive_packet(packet) {
-        this.parent.receive_packet(packet);
+        this.parent.receive_packet(packet,this.id);
     }
 
     send_packet(packet) {
@@ -127,11 +129,15 @@ export default class SwitchNode {
     }
 
     add_connection(destination, svg_link, speed) {
+
+        // Set ID to next larger available one
+        let id = this.ports.length;
+
         // Link connecting both
         let link = new SimLink(svg_link);
         // Create ports for source and destination
-        let source_port = new SimPort(this, link, speed);
-        let dest_port = new SimPort(destination, link, speed);
+        let source_port = new SimPort(this, link, speed,id);
+        let dest_port = new SimPort(destination, link, speed,id);
         source_port.set_destination(dest_port);
         dest_port.set_destination(source_port);
         // Dest port needs to do animations reversed
@@ -142,10 +148,10 @@ export default class SwitchNode {
     }
 
     // Main handler for reading packets, called by ports
-    receive_packet(packet) {
+    receive_packet(packet,port) {
         switch (packet.type) {
             case 0:
-                this.stp.recveive(packet);
+                this.stp.recveive(packet,port);
                 break;
             default:
                 console.log("Dropping unknown packet type");

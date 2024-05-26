@@ -111,6 +111,7 @@ class NetworkSim extends React.Component {
   init() {
 
     // Initialize all switches
+    // TODO: add a small difference in time for each switch
     for (let i = 0; i < this.switches.length; i++) {
       this.switches[i].init();
     }
