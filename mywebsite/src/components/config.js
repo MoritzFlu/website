@@ -9,6 +9,8 @@ export const PACKET_SIZE = 2;
 export const PACKET_EASE = d3.easeLinear;
 
 export const NUM_SWITCHES = 20;
+export const NUM_SERVERS = 10;
+export const NUM_CLIENTS = 10;
 
 export const NETWORK_SVG_REF = "network-svg";
 

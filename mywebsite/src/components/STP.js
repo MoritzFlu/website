@@ -87,7 +87,7 @@ export default class STP {
         for (let i = 0; i < Object.keys(this.status).length; i++) {
             let state = this.status[i].state;
 
-            console.log(this.parent.ports[i].link.svg);
+            //console.log(this.parent.ports[i].link.svg);
             
             if (state === "RP") {
                 this.parent.ports[i].link.svg.setAttribute("style","stroke: rgb(255, 0, 10)");
@@ -101,25 +101,22 @@ export default class STP {
         
     }
 
-    update_root_port(port) {
+    update_root_port(port, cost) {
         // Root port is updatedd, reset all other port states
+        if (cost === undefined) {
+            console.log(this);
+        }
         for (let i = 0; i < Object.keys(this.status).length; i++) {
             if (i === port) {
                 this.status[i].state = "RP";
+                this.status[i].cost = cost; 
             } else {
                 this.status[i].state = "DP";
-            }
-        }
-    }
-
-    update_root_cost(cost) {
-        // Set new cost for all ports
-        for (let i = 0; i < Object.keys(this.status).length; i++) {
-            if (this.status[i].state !== "RP") {
                 let speed = this.parent.ports[i].speed;
+                if (speed === undefined) {
+                    console.log(this);
+                }
                 this.status[i].cost = cost + speed;
-            } else {
-                this.status[i].cost = cost;
             }
         }
     }
@@ -134,7 +131,7 @@ export default class STP {
 
     // On receive packet
     recveive(packet, port) {
-        this.show_root_path();
+        //this.show_root_path();
         
         let data = packet.data;
 
@@ -150,8 +147,7 @@ export default class STP {
             this.root_id = data.root;
 
             // Set root port
-            this.update_root_port(port);
-            this.update_root_cost(data.cost);
+            this.update_root_port(port, data.cost);
             return;
         }
 
@@ -175,8 +171,7 @@ export default class STP {
         if ( correct_root && better_root_path ) {
             //console.log("Updating cost to root",this.bridge_id,"NEW: ",data.cost,"OLD: ",rp.cost);
             // Set root port to new lowest cost port
-            this.update_root_port(port);
-            this.update_root_cost(data.cost);
+            this.update_root_port(port,data.cost);
             return;
         }
 

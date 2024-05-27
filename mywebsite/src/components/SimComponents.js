@@ -11,6 +11,10 @@ Array.prototype.random = function () {
     return this[Math.floor((Math.random() * this.length))];
 }
 
+Array.prototype.randomIndex = function () {
+    return Math.floor((Math.random() * this.length));
+}
+
 class SimLink {
     svg
     constructor(ref) {
@@ -118,6 +122,13 @@ export default class SwitchNode {
         this.stp = new STP(this.id,this);
 
         this.receive_packet = this.receive_packet.bind(this);
+        this.show_debug = this.show_debug.bind(this);
+
+        //svg.addEventListener("click",this.show_debug);
+    }
+
+    show_debug() {
+        console.log(this);
     }
 
     add_port(link, speed) {

@@ -5,15 +5,13 @@ import * as d3 from "d3";
 import * as d3Graphviz from 'd3-graphviz';
 import React, { useEffect, useRef } from "react";
 
-import data from "../data/network.json";
-import switchSVG from "../img/switch.svg";
-import serverSVG from "../img/server.svg";
+// SVG images for visualization
+import * as icons from "../img/icons.js";
 
 import { format } from 'react-string-format';
 
 import shuffle from "shuffle-array";
 import * as Config from './config';
-import { getConfig } from '@testing-library/react';
 
 // TODO: move literals to config file
 
@@ -47,12 +45,25 @@ class NetworkSim extends React.Component {
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
     // Initialize the switches
-    var switches = svg
+    var nodes = svg
       .selectAll("switches")
-      .data(this.network.switches)
+      .data(this.network.nodes)
       .enter()
-      .append("image")
-      .attr("xlink:href", "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIxMDJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSItMC41IC0wLjUgMTAyIDMyIj48ZGVmcy8+PGc+PGc+PHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIyNS44NiIgcng9IjUuMTciIHJ5PSI1LjE3IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjExIiB5PSIyNi44NiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjQuMTQiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIyIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9Ijg5IiBjeT0iMTMuOTMiIHJ4PSI4IiByeT0iOC4yNzU4NjIwNjg5NjU1MTgiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3NiIgY3k9IjYuMTciIHJ4PSIyIiByeT0iMi4wNjg5NjU1MTcyNDEzNzk0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZWxsaXBzZSBjeD0iNzYiIGN5PSIyMS42OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3NiIgY3k9IjEzLjkzIiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjY2LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI1OCIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjQ5LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI0MSIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjMyLjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSIyNCIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjE1LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3IiBjeT0iMTguNTkiIHJ4PSIyIiByeT0iMi4wNjg5NjU1MTcyNDEzNzk0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDQgOC4yNCBMIDEwIDguMjQgTCAxMCAxMS4zNCBMIDggMTEuMzQgTCA4IDEyLjM4IEwgNiAxMi4zOCBMIDYgMTEuMzQgTCA0IDExLjM0IFogTSAxMi41IDguMjQgTCAxOC41IDguMjQgTCAxOC41IDExLjM0IEwgMTYuNSAxMS4zNCBMIDE2LjUgMTIuMzggTCAxNC41IDEyLjM4IEwgMTQuNSAxMS4zNCBMIDEyLjUgMTEuMzQgWiBNIDIxIDguMjQgTCAyNyA4LjI0IEwgMjcgMTEuMzQgTCAyNSAxMS4zNCBMIDI1IDEyLjM4IEwgMjMgMTIuMzggTCAyMyAxMS4zNCBMIDIxIDExLjM0IFogTSAyOS41IDguMjQgTCAzNS41IDguMjQgTCAzNS41IDExLjM0IEwgMzMuNSAxMS4zNCBMIDMzLjUgMTIuMzggTCAzMS41IDEyLjM4IEwgMzEuNSAxMS4zNCBMIDI5LjUgMTEuMzQgWiBNIDM4IDguMjQgTCA0NCA4LjI0IEwgNDQgMTEuMzQgTCA0MiAxMS4zNCBMIDQyIDEyLjM4IEwgNDAgMTIuMzggTCA0MCAxMS4zNCBMIDM4IDExLjM0IFogTSA0Ni41IDguMjQgTCA1Mi41IDguMjQgTCA1Mi41IDExLjM0IEwgNTAuNSAxMS4zNCBMIDUwLjUgMTIuMzggTCA0OC41IDEyLjM4IEwgNDguNSAxMS4zNCBMIDQ2LjUgMTEuMzQgWiBNIDU1IDguMjQgTCA2MSA4LjI0IEwgNjEgMTEuMzQgTCA1OSAxMS4zNCBMIDU5IDEyLjM4IEwgNTcgMTIuMzggTCA1NyAxMS4zNCBMIDU1IDExLjM0IFogTSA2My41IDguMjQgTCA2OS41IDguMjQgTCA2OS41IDExLjM0IEwgNjcuNSAxMS4zNCBMIDY3LjUgMTIuMzggTCA2NS41IDEyLjM4IEwgNjUuNSAxMS4zNCBMIDYzLjUgMTEuMzQgWiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSA4MyAxMC4zMSBMIDg1IDguMjQgTCA4NyAxMC4zMSBNIDgzIDE3LjU1IEwgODUgMTkuNjIgTCA4NyAxNy41NSBNIDkxIDEwLjMxIEwgOTMgOC4yNCBMIDk1IDEwLjMxIE0gOTEgMTcuNTUgTCA5MyAxOS42MiBMIDk1IDE3LjU1IE0gOTMgMTkuNjIgTCA5MyAxNi41MiBMIDg1IDExLjM0IEwgODUgOC4yNCBNIDg1IDE5LjYyIEwgODUgMTYuNTIgTCA5MyAxMS4zNCBMIDkzIDguMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PC9nPjwvZz48L3N2Zz4=")
+      .append("svg")
+      .html(function (obj) {
+        if (obj.type === "switch") {
+          console.log(icons.Switch);
+          return icons.Switch;
+        } 
+        if (obj.type === "server") {
+          return icons.Server;
+        }
+        if (obj.type === "client") {
+          return icons.Client;
+        }
+        console.error("Invalid node TYPE!",obj.type);
+        return "";
+      })
       .attr("id", function (d) {
         let id = this_ref.createSwitch(d, this);
         return id;
@@ -81,12 +92,12 @@ class NetworkSim extends React.Component {
     //  .style("fill", "#69b3a2");
 
     // Let's list the force we wanna apply on the network
-    var simulation = d3.forceSimulation(this.network.switches)                 // Force algorithm is applied to data.nodes
+    var simulation = d3.forceSimulation(this.network.nodes)                 // Force algorithm is applied to data.nodes
       .force("link", d3.forceLink()                               // This force provides links between nodes
         .id(function (d) { return d.id; })                     // This provide  the id of a node
         .links(this.network.links)                                    // and this the list of links
       )
-      .force("charge", d3.forceManyBody().strength(-800))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength     // This force attracts nodes to the center of the svg area
+      .force("charge", d3.forceManyBody().strength(-200))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength     // This force attracts nodes to the center of the svg area
       .on("tick", ticked)
       .on("end", this.init);
 
@@ -98,9 +109,32 @@ class NetworkSim extends React.Component {
         .attr("x2", function (d) { return d.target.x; })
         .attr("y2", function (d) { return d.target.y; });
 
-      switches
-        .attr("x", function (d) { return d.x - 33; })
-        .attr("y", function (d) { return d.y - 20; });
+      nodes
+        // Move servers and switches differently
+        // TODO: this has to be somewhat solvable using class methods
+        //     Probably by adding nodes as class instances to this.network with the appropriate functions
+        .attr("x", function (obj) { 
+          if (obj.type === "server") {
+            return obj.x - 15; 
+          }
+          if (obj.type === "switch") {
+            return obj.x - 15; 
+          }
+          if (obj.type === "client") {
+            return obj.x - 13; 
+          }
+        })
+        .attr("y", function (obj) { 
+          if (obj.type === "server") {
+            return obj.y - 16; 
+          }
+          if (obj.type === "switch") {
+            return obj.y - 15; 
+          }
+          if (obj.type === "client") {
+            return obj.y - 18; 
+          }
+        });
 
       // Set viewbox of SVG such that it scales correctly
       let bbox = svg.node().getBBox();
@@ -136,25 +170,34 @@ class NetworkSim extends React.Component {
   genNetwork() {
 
     const num_switches = Config.NUM_SWITCHES;
+    const num_servers = Config.NUM_SERVERS;
+    const num_clients = Config.NUM_CLIENTS;
 
     // Object will hold network in JSON format for D3 graph
     this.network = {
-      servers: [],
-      switches: [],
+      nodes: [],
       links: []
     };
 
+    // Generation steps:
+    // 1. Generate all switch nodes based on num_switches
+    // 2. Connect all switch nodes with all other switch nodes (full mesh)
+    // 3. Randomly delete links until all nodes have at max n connections
+    // 4. Add server nodes to random switches
+    // 5. Add client nodes to random switches
+    // TODO: allow replacement with different generation algorithms
+
+    // 1. Generate all switch nodes
     for (let i = 0; i < num_switches; i++) {
-
       // Generate nodes
-      this.network.switches.push({
+      this.network.nodes.push({
         id: i,
-        num_links: 0
+        num_links: 0,
+        type: "switch"
       });
-
     }
 
-    // Generate all links
+    // 2. Generate all links
     for (let i = 0; i < num_switches; i++) {
       for (let j = 0; j < num_switches; j++) {
 
@@ -168,42 +211,79 @@ class NetworkSim extends React.Component {
         });
 
         // Store number of connected links
-        this.network.switches[i].num_links += 1;
-        this.network.switches[j].num_links += 1;
+        this.network.nodes[i].num_links += 1;
+        this.network.nodes[j].num_links += 1;
       }
     }
 
-    // Delete links until every switch is below the max number of links
+    // 3. Delete links until every switch is below the max number of links
     // Array with shuffled indices for random access on links
     let indices = [];
     for (let i = 0; i < this.network.links.length; i++) {
       indices.push(i);
     }
     shuffle(indices);
-
     // Iterate over indices array and delete the corresponding links
     for (let i = 0; i < indices.length; i++) {
-
       // Get link object and connected nodes
       let ind = indices[i];
       let link = this.network.links[ind];
-      let source = this.network.switches[link.source];
-      let dest = this.network.switches[link.target];
-
+      let source = this.network.nodes[link.source];
+      let dest = this.network.nodes[link.target];
       // Decide what the number of max links for these nodes is
       // Either 2 or 3
       let max_links = Math.random() * 3 + 2;
-
       if ((source.num_links > max_links &&  dest.num_links > max_links)) {
-
         this.network.links[ind] = null;
         source.num_links -= 1;
         dest.num_links -= 1;
       }
     }
-
     // Remove all null values
     this.network.links = this.network.links.filter(n => n);
+
+    // 4. Add server nodes
+    for (let i = 0; i < num_servers; i++) {
+
+      // Get random switch ID
+      // This also ensures that servers are always connected to a switch
+      let target_switch_index = Math.floor((Math.random() * num_switches));
+
+      // Indices have to be unique, choose index greater than last switch index
+      let server_id = num_switches + i
+      this.network.nodes.push({
+        id: server_id,
+        type: "server"
+      });
+
+      this.network.links.push({
+        source: server_id,
+        target: target_switch_index
+      });
+
+    }
+
+    // 5. Add client nodes
+    for (let i = 0; i < num_clients; i++) {
+
+      // Get random switch ID
+      // This also ensures that servers are always connected to a switch
+      let target_switch_index = Math.floor((Math.random() * num_switches));
+
+      // Indices have to be unique, choose index greater than last switch index
+      let client_id = num_switches + num_servers + i
+      this.network.nodes.push({
+        id: client_id,
+        type: "client"
+      });
+
+      this.network.links.push({
+        source: client_id,
+        target: target_switch_index
+      });
+
+    }
+
 
   }
 
