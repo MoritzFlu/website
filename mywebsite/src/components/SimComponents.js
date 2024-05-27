@@ -109,18 +109,22 @@ export default class SwitchNode {
     //svg_ref
     id = 0;
     ports = [];
+    svg
 
-    constructor(id, speed) {
+    constructor(id, svg) {
         this.id = id;
-        this.speed = speed;
+        this.svg = svg;
 
         this.stp = new STP(this.id,this);
 
         this.receive_packet = this.receive_packet.bind(this);
     }
 
-    add_port(port) {
-        this.ports.push(port);
+    add_port(link, speed) {
+        // Add new port with ID that is one larger than alst one
+        let new_port = new SimPort(this, link, speed, this.ports.length);
+        this.ports.push(new_port);  
+        return new_port
     }
 
     // Called at the beginning of the simulation
@@ -129,22 +133,15 @@ export default class SwitchNode {
     }
 
     add_connection(destination, svg_link, speed) {
-
-        // Set ID to next larger available one
-        let id = this.ports.length;
-
         // Link connecting both
         let link = new SimLink(svg_link);
         // Create ports for source and destination
-        let source_port = new SimPort(this, link, speed,id);
-        let dest_port = new SimPort(destination, link, speed,id);
+        let source_port = this.add_port(link, speed);
+        let dest_port = destination.add_port(link, speed);
         source_port.set_destination(dest_port);
         dest_port.set_destination(source_port);
         // Dest port needs to do animations reversed
         dest_port.set_reversed();
-        // Add ports to both source and destination sim node
-        this.ports.push(source_port);
-        destination.add_port(dest_port);
     }
 
     // Main handler for reading packets, called by ports

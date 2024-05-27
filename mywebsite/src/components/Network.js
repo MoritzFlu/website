@@ -120,6 +120,7 @@ class NetworkSim extends React.Component {
 
   createSwitch(obj, svg_ref) {
     this.switches.push(new SwitchNode(obj.id, svg_ref));
+    console.log(svg_ref);
   }
   createLink(obj, svg_ref) {
     let source = this.switches[obj.source];
@@ -133,7 +134,7 @@ class NetworkSim extends React.Component {
   // Generate and return the network structure as json
   genNetwork() {
 
-    const num_switches = 100;
+    const num_switches = 10;
 
     // Object will hold network in JSON format for D3 graph
     this.network = {
