@@ -11,9 +11,9 @@ Array.prototype.random = function () {
 }
 
 class SimLink {
-    svg_ref
+    svg
     constructor(ref) {
-        this.svg_ref = ref;
+        this.svg = ref;
     }
 
 }
@@ -67,7 +67,7 @@ class SimPort {
 
     send_packet(packet) {
         let color = packet.color;
-        let svg = this.link.svg_ref;
+        let svg = this.link.svg;
 
         let start = { x: svg.getAttribute("x1"), y: svg.getAttribute("y1") };
         let end = { x: svg.getAttribute("x2"), y: svg.getAttribute("y2") };
@@ -106,7 +106,6 @@ class SimPort {
 
 
 export default class SwitchNode {
-    //svg_ref
     id = 0;
     ports = [];
     svg

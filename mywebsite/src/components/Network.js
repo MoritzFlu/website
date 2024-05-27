@@ -63,7 +63,7 @@ class NetworkSim extends React.Component {
       .enter()
       .append("line")
       .style("stroke", "#aaa")
-      .lower()
+      //.lower()
       .attr("id", function (d) {
         let id = this_ref.createLink(d, this);
         return id;
@@ -120,21 +120,20 @@ class NetworkSim extends React.Component {
 
   createSwitch(obj, svg_ref) {
     this.switches.push(new SwitchNode(obj.id, svg_ref));
-    console.log(svg_ref);
   }
   createLink(obj, svg_ref) {
     let source = this.switches[obj.source];
     let destination = this.switches[obj.target];
 
     // Randomly choose connection speed
-    let speed = Math.random() * 5000 + 500;
+    let speed = Math.random() * 1000 + 100;
     source.add_connection(destination, svg_ref, speed);
   }
 
   // Generate and return the network structure as json
   genNetwork() {
 
-    const num_switches = 10;
+    const num_switches = 200;
 
     // Object will hold network in JSON format for D3 graph
     this.network = {

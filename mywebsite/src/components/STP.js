@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { SimPacket } from "./SimComponents";
 
+// TODO: Reconvergence when nodes go missing
 export default class STP {
     bridge_id
     root_id
@@ -15,7 +16,7 @@ export default class STP {
     // Scale is normal *4 since packets travel slow
     // Should always be faster than longest link transmission time
     // TODO: bind to time scale
-    hello_time = 2000 * 4;
+    hello_time = 1000 * 2;
 
     constructor(bridge_id, parent) {
         this.parent = parent;
@@ -28,6 +29,8 @@ export default class STP {
         this.update = this.update.bind(this);
         // Bind since receive is called asynchronous and needs to change this
         this.recveive = this.recveive.bind(this);
+        // Bind since recolor root paths should be called asynchronously
+        this.show_root_path = this.show_root_path.bind(this);
     }
 
     // STP initial actions
@@ -47,15 +50,21 @@ export default class STP {
             .attr("y", this.parent.svg.getAttribute("y"))
             .text(this.root_id);
 
+
+
         // Init status for all ports
         // Note that the port IDs start at one
         for (let i = 0; i < this.parent.ports.length; i++) {
             this.status[i] = {
                 // One of: RP, DP, NDP
+                id: i,
                 state: "Start",
                 cost: this.parent.ports[i].speed
             };
         }
+
+        // TODO: Add handler to show  information on click
+
         this.update();
     }
 
@@ -81,7 +90,31 @@ export default class STP {
 
 
         }
+        this.show_root_path();
         setTimeout(this.update, this.hello_time);
+    }
+
+    show_root_path() {
+        let rp = this.get_RP();
+
+        if (rp === undefined) {return;}
+
+
+        for (let i = 0; i < Object.keys(this.status).length; i++) {
+            let state = this.status[i].state;
+
+            console.log(this.parent.ports[i].link.svg);
+            
+            if (state === "RP") {
+                this.parent.ports[i].link.svg.setAttribute("style","stroke: rgb(255, 0, 10)");
+            }
+
+            if (state === "NDP") {
+                this.parent.ports[i].link.svg.setAttribute("style","stroke: rgb(170,170,170)");
+            }
+        }
+        
+        
     }
 
     update_root_port(port) {
@@ -117,12 +150,12 @@ export default class STP {
 
     // On receive packet
     recveive(packet, port) {
-
-        // Dont handle packets on NDP ports
-        if (this.status[port].state === "NDP") {return;}
-
         let data = packet.data;
-        //console.log(packet,this.bridge_id);
+
+        // -----------------------------------
+        //  HANDLE NEW LOWER ROOT ID RECEIVED
+        // -----------------------------------
+
         // Check if root id has to be updated
         // TODO: is race condition with sending BPDUs?
         if (data.root < this.root_id) {
@@ -137,27 +170,36 @@ export default class STP {
             this.status_viz.attr("fill", "#0000ff");
             this.status_text.text(this.root_id);
             return;
-
         }
+
+        // Receiving a new root id should be handled even on NDP ports
+        // All other handling will not be applied if packet arrives on an NDP port
+        if (this.status[port].state === "NDP") {return;}
+
+        // -----------------------------------
+        //  HANDLE LOWER COST ROOT PATH RECEIVED
+        // -----------------------------------
 
         // Get current root port
         let port_obj = this.status[port];
         let rp = this.get_RP();
-
         // No root port set, no further handling
         if (rp === undefined) {return;}
-
         // Update root path cost if received one is lower
         // But onlye accept BPDUs that announce same root bridge
         let correct_root = (data.root === this.root_id); // Advertising bridge uses the correct root bridge
         let better_root_path = (data.cost < rp.cost); // Cost to root is shorter than current RP
         if ( correct_root && better_root_path ) {
-            console.log("Updating cost to root",this.bridge_id,"NEW: ",data.cost,"OLD: ",rp.cost);
+            //console.log("Updating cost to root",this.bridge_id,"NEW: ",data.cost,"OLD: ",rp.cost);
             // Set root port to new lowest cost port
             this.update_root_port(port);
             this.update_root_cost(data.cost);
             return;
         }
+
+        // -----------------------------------
+        //  HANDLE LOWER COST ROOT PATH RECEIVED ON 
+        // -----------------------------------
 
         // Check if the advertised root path cost is lower than this ports cost
         // If yes, then change port state to non-designated port
