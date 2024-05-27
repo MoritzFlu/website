@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import STP from './STP';
+import * as Config from './config';
 
 // Todo: SimPacket should be moved to another separate file to fix cycle imports
 
@@ -80,16 +81,16 @@ class SimPort {
         }
 
         // TODO: Drawing should be moved out of this functtion since it mixes network logic and drawing loggic
-        var packet_svg = d3.select("#network-svg")
+        var packet_svg = d3.select("#"+Config.NETWORK_SVG_REF)
             .append("circle")
-            .attr("r", 10)
+            .attr("r", Config.PACKET_SIZE)
             .attr("fill", color)
             .attr("cx", start.x)
             .attr("cy", start.y);
 
         packet_svg.transition()
             .duration(this.speed)
-            .ease(d3.easeLinear)
+            .ease(Config.PACKET_EASE)
             .attr("cx", end.x)
             .attr("cy", end.y);
 

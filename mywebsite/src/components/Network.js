@@ -12,6 +12,8 @@ import serverSVG from "../img/server.svg";
 import { format } from 'react-string-format';
 
 import shuffle from "shuffle-array";
+import * as Config from './config';
+import { getConfig } from '@testing-library/react';
 
 // TODO: move literals to config file
 
@@ -41,7 +43,7 @@ class NetworkSim extends React.Component {
     // append the svg object to the body of the page
     var svg = d3.select("#network")
       .append("svg")
-      .attr("id", "network-svg")
+      .attr("id", Config.NETWORK_SVG_REF)
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
     // Initialize the switches
@@ -52,7 +54,7 @@ class NetworkSim extends React.Component {
       .append("image")
       .attr("xlink:href", "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIxMDJweCIgaGVpZ2h0PSIzMnB4IiB2aWV3Qm94PSItMC41IC0wLjUgMTAyIDMyIj48ZGVmcy8+PGc+PGc+PHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIyNS44NiIgcng9IjUuMTciIHJ5PSI1LjE3IiBmaWxsPSIjZjVmNWY1IiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxyZWN0IHg9IjExIiB5PSIyNi44NiIgd2lkdGg9IjgwIiBoZWlnaHQ9IjQuMTQiIGZpbGw9IiNmNWY1ZjUiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIyIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9Ijg5IiBjeT0iMTMuOTMiIHJ4PSI4IiByeT0iOC4yNzU4NjIwNjg5NjU1MTgiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3NiIgY3k9IjYuMTciIHJ4PSIyIiByeT0iMi4wNjg5NjU1MTcyNDEzNzk0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZWxsaXBzZSBjeD0iNzYiIGN5PSIyMS42OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3NiIgY3k9IjEzLjkzIiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjY2LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI1OCIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjQ5LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI0MSIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjMyLjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSIyNCIgY3k9IjE4LjU5IiByeD0iMiIgcnk9IjIuMDY4OTY1NTE3MjQxMzc5NCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjE1LjUiIGN5PSIxOC41OSIgcng9IjIiIHJ5PSIyLjA2ODk2NTUxNzI0MTM3OTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0ibm9uZSIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxlbGxpcHNlIGN4PSI3IiBjeT0iMTguNTkiIHJ4PSIyIiByeT0iMi4wNjg5NjU1MTcyNDEzNzk0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDQgOC4yNCBMIDEwIDguMjQgTCAxMCAxMS4zNCBMIDggMTEuMzQgTCA4IDEyLjM4IEwgNiAxMi4zOCBMIDYgMTEuMzQgTCA0IDExLjM0IFogTSAxMi41IDguMjQgTCAxOC41IDguMjQgTCAxOC41IDExLjM0IEwgMTYuNSAxMS4zNCBMIDE2LjUgMTIuMzggTCAxNC41IDEyLjM4IEwgMTQuNSAxMS4zNCBMIDEyLjUgMTEuMzQgWiBNIDIxIDguMjQgTCAyNyA4LjI0IEwgMjcgMTEuMzQgTCAyNSAxMS4zNCBMIDI1IDEyLjM4IEwgMjMgMTIuMzggTCAyMyAxMS4zNCBMIDIxIDExLjM0IFogTSAyOS41IDguMjQgTCAzNS41IDguMjQgTCAzNS41IDExLjM0IEwgMzMuNSAxMS4zNCBMIDMzLjUgMTIuMzggTCAzMS41IDEyLjM4IEwgMzEuNSAxMS4zNCBMIDI5LjUgMTEuMzQgWiBNIDM4IDguMjQgTCA0NCA4LjI0IEwgNDQgMTEuMzQgTCA0MiAxMS4zNCBMIDQyIDEyLjM4IEwgNDAgMTIuMzggTCA0MCAxMS4zNCBMIDM4IDExLjM0IFogTSA0Ni41IDguMjQgTCA1Mi41IDguMjQgTCA1Mi41IDExLjM0IEwgNTAuNSAxMS4zNCBMIDUwLjUgMTIuMzggTCA0OC41IDEyLjM4IEwgNDguNSAxMS4zNCBMIDQ2LjUgMTEuMzQgWiBNIDU1IDguMjQgTCA2MSA4LjI0IEwgNjEgMTEuMzQgTCA1OSAxMS4zNCBMIDU5IDEyLjM4IEwgNTcgMTIuMzggTCA1NyAxMS4zNCBMIDU1IDExLjM0IFogTSA2My41IDguMjQgTCA2OS41IDguMjQgTCA2OS41IDExLjM0IEwgNjcuNSAxMS4zNCBMIDY3LjUgMTIuMzggTCA2NS41IDEyLjM4IEwgNjUuNSAxMS4zNCBMIDYzLjUgMTEuMzQgWiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSJub25lIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PHBhdGggZD0iTSA4MyAxMC4zMSBMIDg1IDguMjQgTCA4NyAxMC4zMSBNIDgzIDE3LjU1IEwgODUgMTkuNjIgTCA4NyAxNy41NSBNIDkxIDEwLjMxIEwgOTMgOC4yNCBMIDk1IDEwLjMxIE0gOTEgMTcuNTUgTCA5MyAxOS42MiBMIDk1IDE3LjU1IE0gOTMgMTkuNjIgTCA5MyAxNi41MiBMIDg1IDExLjM0IEwgODUgOC4yNCBNIDg1IDE5LjYyIEwgODUgMTYuNTIgTCA5MyAxMS4zNCBMIDkzIDguMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PC9nPjwvZz48L3N2Zz4=")
       .attr("id", function (d) {
-        let id = this_ref.createSwitch(d,this);
+        let id = this_ref.createSwitch(d, this);
         return id;
       });
 
@@ -62,8 +64,8 @@ class NetworkSim extends React.Component {
       .data(this.network.links)
       .enter()
       .append("line")
-      .style("stroke", "#aaa")
-      //.lower()
+      .style("stroke", Config.LINK_COLOR)
+      .lower()
       .attr("id", function (d) {
         let id = this_ref.createLink(d, this);
         return id;
@@ -84,9 +86,9 @@ class NetworkSim extends React.Component {
         .id(function (d) { return d.id; })                     // This provide  the id of a node
         .links(this.network.links)                                    // and this the list of links
       )
-      .force("charge", d3.forceManyBody().strength(-400))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength     // This force attracts nodes to the center of the svg area
+      .force("charge", d3.forceManyBody().strength(-800))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength     // This force attracts nodes to the center of the svg area
       .on("tick", ticked)
-      .on("end",  this.init );
+      .on("end", this.init);
 
     // This function is run at each iteration of the force algorithm, updating the nodes position.
     function ticked() {
@@ -115,7 +117,7 @@ class NetworkSim extends React.Component {
     for (let i = 0; i < this.switches.length; i++) {
       this.switches[i].init();
     }
-    
+
   }
 
   createSwitch(obj, svg_ref) {
@@ -133,7 +135,7 @@ class NetworkSim extends React.Component {
   // Generate and return the network structure as json
   genNetwork() {
 
-    const num_switches = 200;
+    const num_switches = Config.NUM_SWITCHES;
 
     // Object will hold network in JSON format for D3 graph
     this.network = {
@@ -192,7 +194,7 @@ class NetworkSim extends React.Component {
       // Either 2 or 3
       let max_links = Math.random() * 3 + 2;
 
-      if (source.num_links > max_links && dest.num_links > max_links) {
+      if ((source.num_links > max_links &&  dest.num_links > max_links)) {
 
         this.network.links[ind] = null;
         source.num_links -= 1;

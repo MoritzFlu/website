@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { SimPacket } from "./SimComponents";
+import * as Config from './config';
 
 // TODO: Reconvergence when nodes go missing
 export default class STP {
@@ -36,22 +37,6 @@ export default class STP {
     // STP initial actions
     init() {
 
-        // Initial status visualization
-        this.status_viz = d3.select("#network-svg")
-            .append("circle")
-            .attr("r", 10)
-            .attr("fill", "#ff0000")
-            .attr("cx", this.parent.svg.getAttribute("x"))
-            .attr("cy", this.parent.svg.getAttribute("y"));
-
-        this.status_text = d3.select("#network-svg")
-            .append("text")
-            .attr("x", this.parent.svg.getAttribute("x"))
-            .attr("y", this.parent.svg.getAttribute("y"))
-            .text(this.root_id);
-
-
-
         // Init status for all ports
         // Note that the port IDs start at one
         for (let i = 0; i < this.parent.ports.length; i++) {
@@ -78,7 +63,7 @@ export default class STP {
                 cost: this.status[i].cost,
                 id: this.bridge_id,
                 port: i
-            }, "#0000FF");
+            }, Config.BPDU_COLOR);
 
             // Only send packet if this is not a NDP or RP
             let is_not_rp = !(this.status[i].state === "RP");
@@ -90,7 +75,6 @@ export default class STP {
 
 
         }
-        this.show_root_path();
         setTimeout(this.update, this.hello_time);
     }
 
@@ -150,6 +134,8 @@ export default class STP {
 
     // On receive packet
     recveive(packet, port) {
+        this.show_root_path();
+        
         let data = packet.data;
 
         // -----------------------------------
@@ -166,9 +152,6 @@ export default class STP {
             // Set root port
             this.update_root_port(port);
             this.update_root_cost(data.cost);
-
-            this.status_viz.attr("fill", "#0000ff");
-            this.status_text.text(this.root_id);
             return;
         }
 
