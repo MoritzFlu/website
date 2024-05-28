@@ -52,7 +52,6 @@ class NetworkSim extends React.Component {
       .append("svg")
       .html(function (obj) {
         if (obj.type === "switch") {
-          console.log(icons.Switch);
           return icons.Switch;
         } 
         if (obj.type === "server") {
@@ -145,11 +144,11 @@ class NetworkSim extends React.Component {
 
   // Initialize simulation and start
   init() {
-
     // Initialize all switches
     // TODO: add a small difference in time for each switch
     for (let i = 0; i < this.switches.length; i++) {
-      this.switches[i].init();
+      let timeout = Math.random() * Config.MAX_STARTUP_DELAY;
+      setTimeout(this.switches[i].init, timeout);
     }
 
   }
@@ -162,7 +161,7 @@ class NetworkSim extends React.Component {
     let destination = this.switches[obj.target];
 
     // Randomly choose connection speed
-    let speed = Math.random() * 1000 + 100;
+    let speed = Math.random() * Config.MAX_LINK_SPEED + Config.MAX_LINK_SPEED;
     source.add_connection(destination, svg_ref, speed);
   }
 

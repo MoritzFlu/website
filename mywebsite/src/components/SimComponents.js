@@ -123,8 +123,10 @@ export default class SwitchNode {
 
         this.receive_packet = this.receive_packet.bind(this);
         this.show_debug = this.show_debug.bind(this);
+        // Since init is called after a timeout from the network starter
+        this.init = this.init.bind(this);
 
-        //svg.addEventListener("click",this.show_debug);
+        svg.addEventListener("click",this.show_debug);
     }
 
     show_debug() {

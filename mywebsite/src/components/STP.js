@@ -17,7 +17,7 @@ export default class STP {
     // Scale is normal *4 since packets travel slow
     // Should always be faster than longest link transmission time
     // TODO: bind to time scale
-    hello_time = 1000 * 2;
+    hello_time = Config.TIME_SCALE * 2;
 
     constructor(bridge_id, parent) {
         this.parent = parent;
@@ -32,6 +32,7 @@ export default class STP {
         this.recveive = this.recveive.bind(this);
         // Bind since recolor root paths should be called asynchronously
         this.show_root_path = this.show_root_path.bind(this);
+        
     }
 
     // STP initial actions
