@@ -1,8 +1,9 @@
-import * as d3 from "d3";
-import { SimPacket } from "./SimComponents";
+import Packet from './Packet';
 import * as Config from './config';
 
 // TODO: Reconvergence when nodes go missing
+// TODO: model all port states
+// TODO: model correct packet format
 export default class STP {
     bridge_id
     root_id
@@ -58,7 +59,7 @@ export default class STP {
 
         for (let i = 0; i < this.parent.ports.length; i++) {
             // Send initial BPDU
-            let bpdu = new SimPacket(0, {
+            let bpdu = new Packet(0, {
                 root: this.root_id,
                 // TODO: pass cost from link transmission duration
                 cost: this.status[i].cost,
@@ -72,8 +73,6 @@ export default class STP {
             if ( is_not_rp & is_not_ndp) {
                 this.parent.ports[i].send_packet(bpdu);
             }
-
-
 
         }
         setTimeout(this.update, this.hello_time);
