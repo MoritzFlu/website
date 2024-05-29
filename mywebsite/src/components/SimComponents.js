@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import STP from './STP';
+import L2 from './L2';
 import * as Config from './config';
 
 // Todo: SimPacket should be moved to another separate file to fix cycle imports
@@ -41,6 +42,7 @@ class SimPort {
     speed = 1000;
     parent
     id
+    blocked = false;
 
     // Set to true if this animations over this link have to be played in reverse
     reversed = false;
@@ -61,6 +63,14 @@ class SimPort {
         this.destination = dest;
     }
 
+    block() {
+        this.blocked = true;
+    }
+    unblock() {
+        this.blocked = false;
+    }
+
+    // Once port is set in reverse mode, does not have to be changed back again
     set_reversed() {
         this.reversed = true;
     }

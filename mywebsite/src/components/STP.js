@@ -110,7 +110,7 @@ export default class STP {
         for (let i = 0; i < Object.keys(this.status).length; i++) {
             if (i === port) {
                 this.status[i].state = "RP";
-                this.status[i].cost = cost; 
+                this.status[i].cost = cost;
             } else {
                 this.status[i].state = "DP";
                 let speed = this.parent.ports[i].speed;
@@ -119,6 +119,9 @@ export default class STP {
                 }
                 this.status[i].cost = cost + speed;
             }
+
+            // Ensure that all ports are not blocked and can send packets
+            this.parent.ports[i].unblock();
         }
     }
 
@@ -187,6 +190,7 @@ export default class STP {
         if ( lower_cost_advertised && received_on_non_rp && correct_root ) {
             // Make port blocking
             this.status[port].state = "NDP";
+            this.parent.ports[port].block();
             return;
         }
 
