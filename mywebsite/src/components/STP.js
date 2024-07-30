@@ -14,6 +14,9 @@ export default class STP {
     status_text
 
     root_path_cost = 0
+    
+    // Type used in packets:
+    type = 0;
 
     // Scale is normal *4 since packets travel slow
     // Should always be faster than longest link transmission time
@@ -30,7 +33,7 @@ export default class STP {
         // Bind update to call it at intervals
         this.update = this.update.bind(this);
         // Bind since receive is called asynchronous and needs to change this
-        this.recveive = this.recveive.bind(this);
+       this.receive = this.receive.bind(this);
         // Bind since recolor root paths should be called asynchronously
         this.show_root_path = this.show_root_path.bind(this);
         
@@ -38,6 +41,10 @@ export default class STP {
 
     // STP initial actions
     init() {
+
+        // This call could be updated to parent class type of all modules
+        // Should be a moduel such that not "this" is always passed
+        this.parent.register_packet_handler(this.type, this.receive);
 
         // Init status for all ports
         // Note that the port IDs start at one
@@ -51,7 +58,6 @@ export default class STP {
         }
 
         // TODO: Add handler to show  information on click
-
         this.update();
     }
 
@@ -59,7 +65,7 @@ export default class STP {
 
         for (let i = 0; i < this.parent.ports.length; i++) {
             // Send initial BPDU
-            let bpdu = new Packet(0, {
+            let bpdu = new Packet(this.type, {
                 root: this.root_id,
                 // TODO: pass cost from link transmission duration
                 cost: this.status[i].cost,
@@ -68,6 +74,7 @@ export default class STP {
             }, Config.BPDU_COLOR);
 
             // Only send packet if this is not a NDP or RP
+            // TODO: this should be done automatically via the ports state, and only call this.parent.broadcast here
             let is_not_rp = !(this.status[i].state === "RP");
             let is_not_ndp = !(this.status[i].state === "NDP");
             if ( is_not_rp & is_not_ndp) {
@@ -133,7 +140,7 @@ export default class STP {
 
 
     // On receive packet
-    recveive(packet, port) {
+    receive(packet, port) {
         //this.show_root_path();
         
         let data = packet.data;

@@ -16,3 +16,8 @@ export const NUM_CLIENTS = 10;
 export const NETWORK_SVG_REF = "network-svg";
 
 export const LINK_COLOR = "#aaa";
+
+export const ARP_COLOR = "#0000FF";
+export const STP_COLOR = "#FF00FF";
+export const ETHERNET_COLOR = "#00FF00";
+export const IPV4_COLOR = "#FFFF00";

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import STP from './STP';
-import Ethernet from './Ethernet';
+
 
 
 import Link from './Link';
@@ -27,17 +27,18 @@ Array.prototype.randomIndex = function () {
 export default class NetworkNode {
     id = 0;
     ports = [];
+    renderer
 
-    constructor(id) {
+    constructor(id,renderer) {
         this.id = id;
+        this.renderer = renderer;
+        this.packet_handlers = {};
 
+        // Binds for asynchronous calls from other classes e.g. setTimeout
         this.receive_packet = this.receive_packet.bind(this);
         this.show_debug = this.show_debug.bind(this);
-        // Since init is called after a timeout from the network starter
         this.init = this.init.bind(this);
-
-        // TODO: move this to renderer, add function to renderer to register this
-        //svg.addEventListener("click",this.show_debug);
+        this.register_packet_handler = this.register_packet_handler.bind(this);
     }
 
     show_debug() {
@@ -63,6 +64,10 @@ export default class NetworkNode {
         dest_port.set_reversed();
     }
 
+    send_packet(packet, port) {
+        this.ports[port].send_packet(packet);
+    }
+
     broadcast(packet) {
         for (let i = 0; i < this.ports.length; i++) {
             // Start animation
@@ -70,21 +75,42 @@ export default class NetworkNode {
         }
     }
 
+    // Broadcast over all ports except the one mentioned
+    // (necessary for ethernet switching)
+    limited_broadcast(packet,port) {
+        for (let i = 0; i < this.ports.length; i++) {
+            // Skip port that is passed as parameter
+            if (i === port) continue;
+            // Start animation
+            this.ports[i].send_packet(packet);
+        }
+    }
+
+
+
 
     // Super implements packet handling to ensure that all nodes have the same packet.type interpretation
     // This should always check if the module has the corresponding module setup and drop the packet if not
     receive_packet(packet,port) {
-        // Switch based on packet type
-        switch (packet.type) {
-            // Type 0: STP
-            case 0:
-                // Handle STP packet if STP module is in node
-                if (this.stp !== undefined) {
-                    this.stp.recveive(packet,port);
-                } 
-                break;
-            default:
-                console.warn("Dropping unknown packet type", packet.type, "Source: ", this.parent);
+        // Get handling function based on packet outer type
+        let handler = this.packet_handlers[packet.type];
+        // Check if handler exists
+        if ( handler === undefined) {
+            //console.warn("Dropping unknown packet type, since no handler found", packet.type, "Source: ", this);
+            return;
         }
+        // Pass packet on to handler
+        handler(packet, port);
+    }
+
+    register_packet_handler(type, handler) {
+
+        // Check if handler already exists
+        if ( type in this.packet_handlers) {
+            console.warn("Overwriting handler for ", type, "from ", this.packet_handlers[type], "to",handler);
+        }
+
+        // Store reference for handler
+        this.packet_handlers[type] = handler;
     }
 }

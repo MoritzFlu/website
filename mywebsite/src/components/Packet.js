@@ -1,3 +1,5 @@
+// TODO: add packet classes to simplify parsing
+//  maybe add a parse tree here?
 export default class Packet {
     color
     data
@@ -9,3 +11,5 @@ export default class Packet {
         this.color = color;
     }
 }
+
+

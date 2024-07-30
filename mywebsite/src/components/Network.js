@@ -44,6 +44,16 @@ class NetworkSim extends React.Component {
       setTimeout(this.sim_nodes[i].init, timeout);
     }
 
+    // Send a single ethernet frame after 5 seconds
+    for (let i = 0; i < this.sim_nodes.length; i++) {
+      let node = this.sim_nodes[i];
+      if (node.type === "client") {
+        setTimeout( () => {node.ip.send({data:"TEST"},"10.0.1.5")},20000);
+        break
+      }
+    }
+    
+
   }
   // Factory for network sim_nodes
   createNode(type, id) {
@@ -197,7 +207,7 @@ class NetworkSim extends React.Component {
         id: "link" + this.network.links.length,
         source: client_id,
         target: "switch" + target_switch_index,
-        source_index: num_switches + i,
+        source_index: num_switches + num_servers + i,
         target_index: target_switch_index
       });
 

@@ -59,6 +59,13 @@ export default class Renderer {
         // Set timeout to delete packet on arrival
         setTimeout(() => {packet.remove();}, speed);
     }
+
+    register_event(id, event, func) {
+      let svg = d3.select("#" + Config.NETWORK_SVG_REF);
+      let obj = svg.select("#"+id).node();
+
+      obj.addEventListener(event,func);
+    }
   
     get_icon(name) {
       switch (name) {
