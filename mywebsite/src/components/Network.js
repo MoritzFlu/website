@@ -22,6 +22,7 @@ class NetworkSim extends React.Component {
   // Called when component was rendered
   componentDidMount() {
     this.init = this.init.bind(this);
+    this.update = this.update.bind(this);
 
     this.sim_nodes = [];
 
@@ -40,21 +41,61 @@ class NetworkSim extends React.Component {
   init() {
     // Initialize all nodes
     for (let i = 0; i < this.sim_nodes.length; i++) {
+
+      // call init after a randomized delay, otherwise all nodes start sending packets at the same time
       let timeout = Math.random() * Config.MAX_STARTUP_DELAY;
       setTimeout(this.sim_nodes[i].init, timeout);
     }
 
-    // Send a single ethernet frame after 5 seconds
-    for (let i = 0; i < this.sim_nodes.length; i++) {
-      let node = this.sim_nodes[i];
-      if (node.type === "client") {
-        setTimeout( () => {node.ip.send({data:"TEST"},"10.0.1.5")},20000);
-        break
+    // Delay first update until nodes are initialized
+    setTimeout(this.update, Config.MAX_STARTUP_DELAY);
+  }
+
+
+  update() {
+
+
+
+    // Check if STP currently has single root
+    // TODO: move filter statements to init, if no nodes added dynamically
+    const switches = this.sim_nodes.filter(node => (node.type === "switch"));
+    const stp_done = this.check_root(switches);
+
+    if (stp_done) {
+
+      // Get list of client and servers
+      const servers = this.sim_nodes.filter(node => (node.type === "server"));
+      const clients = this.sim_nodes.filter(node => (node.type === "client"));
+
+      // Get random indices
+      const sIdx = Math.floor(Math.random() * servers.length);
+      const cIdx = Math.floor(Math.random() * clients.length);
+
+      let dst_addr = servers[sIdx].ports[0].get_l3addr_witout_subnet(0);
+      console.log("Sending from Client", clients[cIdx].id, " to ", dst_addr);
+      clients[cIdx].ip.send({ data: "TEST" }, dst_addr)
+
+    } else {
+      console.log("STP NOT DONE!");
+    }
+
+    setTimeout(this.update, Config.UPDATE_PERIOD);
+  }
+
+  // Returns true if only one bridge is currently the root bridge for STP
+  check_root(nodes) {
+    let root_count = 0
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes[i];
+      if (node.stp.is_root) {
+        root_count += 1;
       }
     }
-    
 
+    // Return false if more than one node is STP root
+    return !(root_count > 1);
   }
+
   // Factory for network sim_nodes
   createNode(type, id) {
     let new_node;
@@ -90,7 +131,7 @@ class NetworkSim extends React.Component {
 
     // Randomly choose connection speed
     let speed = Math.random() * Config.MAX_LINK_SPEED + Config.MAX_LINK_SPEED;
-    
+
     source.add_connection(destination, speed, link, this.renderer);
   }
 
