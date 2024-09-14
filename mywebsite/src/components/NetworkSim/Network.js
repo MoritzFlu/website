@@ -54,8 +54,6 @@ class NetworkSim extends React.Component {
 
   update() {
 
-
-
     // Check if STP currently has single root
     // TODO: move filter statements to init, if no nodes added dynamically
     const switches = this.sim_nodes.filter(node => (node.type === "switch"));

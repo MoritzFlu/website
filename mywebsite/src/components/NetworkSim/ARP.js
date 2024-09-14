@@ -147,6 +147,7 @@ export default class ARP {
         // Transmit package
         // TODO: add hook that waits for response
         // TODO: add MAC broadcast to switching
+        // Pass packet to L2 handler
         this.layer2.send("FF:FF:FF:FF:FF:FF",port,req,this.ethertype,ARP_COLOR);
     }
 }

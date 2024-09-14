@@ -103,7 +103,8 @@ export default class IPv4 {
             this.queue[address] = data;
         } else {
             // Address known, send out
-            this.layer2.send(mac, out_port, packet,this.ethertype, IPV4_COLOR);
+            // Pass packet to L2 handler
+            this.l2.send(mac, out_port, packet,this.ethertype, IPV4_COLOR);
         }
 
     }
