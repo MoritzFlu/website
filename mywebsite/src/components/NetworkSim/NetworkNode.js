@@ -1,8 +1,6 @@
 import * as d3 from "d3";
 import STP from './STP';
 
-
-
 import Link from './Link';
 import Packet from "./Packet";
 import Port from "./Port";
@@ -85,9 +83,6 @@ export default class NetworkNode {
             this.ports[i].send_packet(packet);
         }
     }
-
-
-
 
     // Super implements packet handling to ensure that all nodes have the same packet.type interpretation
     // This should always check if the module has the corresponding module setup and drop the packet if not
