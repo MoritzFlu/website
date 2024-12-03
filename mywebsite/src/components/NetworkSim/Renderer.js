@@ -2,15 +2,18 @@ import * as d3 from "d3";
 import * as Config from './config';
 
 import * as icons from '../../img/icons';
+import forceBoundary from 'd3-force-boundary';
 
 export default class Renderer {
   link
   nodes
   svg
+  parent
 
   constructor() {
     this.sim_tick = this.sim_tick.bind(this);
   }
+
 
   icon_offset = {
     "switch": {
@@ -83,14 +86,17 @@ export default class Renderer {
   // TODO: move to we worker and add loading icon: https://observablehq.com/@d3/force-directed-web-worker
   // TODO: move network to a class?
   draw_network(svg_id, network, callback) {
-    console.log("Drawing network");
+    this.parent = d3.select(svg_id);
+
+    // Get size of parent container
+    let x_max = 2*this.parent.node().offsetWidth;
+    let y_max = 2*this.parent.node().offsetHeight;
 
     // append the svg object to the body of the page
-    this.svg = d3.select(svg_id)
+    this.svg = this.parent
       .append("svg")
       .attr("id", Config.NETWORK_SVG_REF)
       .attr('preserveAspectRatio', 'xMidYMid meet');
-
 
     // Initialize the network nodes
     this.nodes = this.svg
@@ -119,6 +125,7 @@ export default class Renderer {
         .links(network.links)
       )
       .force("charge", d3.forceManyBody().strength(-200))
+      .force("boundary", forceBoundary(0, 0, x_max, y_max))
       .on("tick", this.sim_tick)
       .on("end", callback);
       for (let i = 0; i < 1000; i++) {
@@ -141,6 +148,7 @@ export default class Renderer {
 
       // Set viewbox of SVG such that it scales correctly
       let bbox = this.svg.node().getBBox();
+      console.log("SIM TICK",bbox.x, bbox.y, bbox.width,bbox.height)
       this.svg.attr("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
   }
 }

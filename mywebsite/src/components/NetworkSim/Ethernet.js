@@ -92,7 +92,7 @@ export default class Ethernet {
         }
 
         // Send packet out of given port
-        console.log("Sending Ethernet Frame",packet);
+        //console.log("Sending Ethernet Frame",packet);
         this.node.ports[port].send_packet(packet);
     }
 }

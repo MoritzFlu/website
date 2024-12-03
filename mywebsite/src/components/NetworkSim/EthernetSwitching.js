@@ -45,7 +45,7 @@ export default class EthernetSwitching {
         // Try to get output port from forwarding
         let out_port = this.forwarding_table[dst];
 
-        console.log("SWITCHING IN",port,"OUT",out_port,"TABLE",this.forwarding_table);
+        //console.log("SWITCHING IN",port,"OUT",out_port,"TABLE",this.forwarding_table);
 
         if (out_port === undefined) {
             // No entry, broadcast through all ports except incoming port

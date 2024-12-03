@@ -54,7 +54,7 @@ export default class IPv4 {
 
     // TODO: handle multiple calls for asame address
     arp_callback(mac, ip, port) {
-        console.log("Received ARP reply for "+mac)
+        //console.log("Received ARP reply for "+mac)
         if (ip in this.queue) {
             let packet = this.queue[ip];
 
@@ -86,7 +86,7 @@ export default class IPv4 {
             console.log("No Port for address: "+address)
             return
         }
-        console.log("PORT",out_port);
+        //console.log("PORT",out_port);
 
         let packet = new IPHeader();
         packet.data = data;

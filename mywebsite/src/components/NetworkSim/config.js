@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-export const UPDATE_PERIOD = 3000;
+export const UPDATE_PERIOD = 1000;
 
 export const TIME_SCALE = 1000;
 export const MAX_LINK_SPEED = TIME_SCALE;

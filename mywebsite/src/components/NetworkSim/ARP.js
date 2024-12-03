@@ -80,7 +80,7 @@ export default class ARP {
 
         // Check if this node has the requested IP addr
         if (port_obj.check_can_receive(req_addr)) {
-            console.log("ANSWERING ARP REQUEST",header);
+            //console.log("ANSWERING ARP REQUEST",header);
             this.answer_request(header,port);
         }
     }
@@ -127,7 +127,7 @@ export default class ARP {
     }
 
     send_request(address,port) {
-        console.log(this,port);
+        //console.log(this,port);
         let req = new ARPHeader();
 
         req.hrd = 1; // Ethernet
