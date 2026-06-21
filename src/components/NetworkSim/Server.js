@@ -45,6 +45,7 @@ export default class Server extends NetworkNode {
                 type: 'server',
                 id: this.id,
                 ip: this.ports[0]?.get_l3addr_witout_subnet(0) ?? null,
+                mac: this.ports[0]?.l2Addr ?? null,
                 hostname: this.fqdn ?? null,
                 arp_table: { ...this.arp.table },
             });
@@ -58,9 +59,24 @@ export default class Server extends NetworkNode {
     }
 
     _send_http_response(conn_id) {
-        const n = Math.floor(Math.random() * 20) + 1;
+        const n = Math.floor(Math.random() * 16) + 5;
         const payloads = Array.from({ length: n }, (_, i) => ({ status: 200, chunk: i, total: n }));
         this.tcp.send(conn_id, payloads);
+    }
+
+    send_bootstrap_response(client_ip, client_port) {
+        const my_ip = this.ports[0]?.get_l3addr_witout_subnet(0);
+        if (!my_ip) return;
+        const conn_id = `${my_ip}:80:${client_ip}:${client_port}`;
+        this.tcp.connections[conn_id] = {
+            role: 'server', state: 'ESTABLISHED',
+            my_ip, my_port: 80,
+            peer_ip: client_ip, peer_port: client_port,
+            seq: 1, peer_seq: 0,
+            send_queue: [], send_start: 0, send_base: 0,
+            on_data: null, on_close: null,
+        };
+        this._send_http_response(conn_id);
     }
 
     update() {}

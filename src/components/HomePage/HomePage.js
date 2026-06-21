@@ -21,9 +21,14 @@ const navItems = [
 
 const talks = [
   {
-    title: 'Programmable data planes for deterministic network behavior',
-    where: 'Chair of Communication Networks',
-    year: '2024',
+    title: 'Kernel-Programmierung zur Laufzeit mit eBPF',
+    where: 'Tuebix',
+    year: '2026',
+  },
+  {
+    title: 'Reading kernel code without C-ing',
+    where: 'Tuebix',
+    year: '2025',
   },
   {
     title: 'BIER-TE extensions for larger multicast domains',
@@ -128,8 +133,9 @@ function HomePage() {
               deferStart
               asnCount={2}
               layout={{
-                asnRadius: 270,
-                subnetRadius: 165,
+                asnRadius: 380,
+                subnetRadius: 130,
+                subnetSpreadAngle: 0.9,
               }}
               limits={{
                 minRoutersPerAsn: 2,
@@ -145,10 +151,10 @@ function HomePage() {
           </div>
           <div className="simulator-copy">
             <div>
-              <h2>Interactive multi-AS topology</h2>
+              <h2>This Network Simulator runs in your browser.</h2>
               <p>
-                The simulator runs entirely in your browser. Open the full view to inspect nodes,
-                protocol state, and packet movement.
+                A fun project to understand simulator architeture and how different protocols are actually implemented.
+                The basic simulator, STP, ARP, IPv4 and ICMP were implemented by hand. RIP, BGP, TCP/UDP, DNS and HTTP were added with support from LLMs.
               </p>
             </div>
             <Link className="primary-button" to="/sim">

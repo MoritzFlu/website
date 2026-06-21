@@ -32,6 +32,10 @@ export default class Switch extends NetworkNode {
                         blocked: this.ports[i]?.blocked ?? false,
                     })),
                 },
+                forwarding_table: Object.entries(this.ethernet.forwarding_table).map(([mac, port]) => ({
+                    mac,
+                    port,
+                })),
             });
         });
     }

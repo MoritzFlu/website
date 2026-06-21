@@ -55,21 +55,110 @@ class NetworkSim extends React.Component {
     _mount_network() {
         if (!this._mounted) return;
         this.genNetwork();
-        this.renderer.draw_network('#network', this.network, this.init);
+        this.renderer.draw_network('#network', this.network, () => {
+            this.init();
+            this._apply_mode_highlights(SimMode.getMode());
+        });
     }
 
     componentWillUnmount() {
         this._mounted = false;
         if (this._start_frame) cancelAnimationFrame(this._start_frame);
         if (this._traffic_interval) clearInterval(this._traffic_interval);
+        if (this._tcp_highlight_interval) clearInterval(this._tcp_highlight_interval);
+        if (this._startup_timeouts) this._startup_timeouts.forEach(clearTimeout);
         if (this._mode_unsub) this._mode_unsub();
         if (this.renderer) this.renderer.destroy();
     }
 
+    _refresh_tcp_highlights() {
+        for (const n of this.sim_nodes) {
+            if (n.type !== 'client' && n.type !== 'server') continue;
+            const has_active_session = n.tcp && Object.keys(n.tcp.connections || {}).length > 0;
+            this.renderer.set_node_highlighted(n.id, has_active_session);
+        }
+    }
+
+    _find_switch_path(src_switch, dst_switch) {
+        if (!src_switch || !dst_switch) return null;
+        if (src_switch.id === dst_switch.id) return [src_switch];
+
+        const queue = [src_switch];
+        const prev = new Map([[src_switch.id, null]]);
+
+        while (queue.length > 0) {
+            const sw = queue.shift();
+            for (const port of sw.ports) {
+                if (port.blocked) continue;
+                const dst_port = port.destination;
+                const next = dst_port?.parent;
+                if (!next || next.type !== 'switch' || dst_port.blocked || prev.has(next.id)) continue;
+                prev.set(next.id, { node: next, prev: sw });
+                if (next.id === dst_switch.id) {
+                    queue.length = 0;
+                    break;
+                }
+                queue.push(next);
+            }
+        }
+
+        if (!prev.has(dst_switch.id)) return null;
+
+        const path = [];
+        let current = dst_switch;
+        while (current) {
+            path.unshift(current);
+            const step = prev.get(current.id);
+            current = step?.prev ?? null;
+        }
+        return path;
+    }
+
+    _port_to_neighbor(sw, neighbor) {
+        return sw.ports.find(port =>
+            !port.blocked &&
+            port.destination?.parent?.id === neighbor.id &&
+            !port.destination.blocked
+        );
+    }
+
+    _seed_l2_forwarding_for_pair(pair) {
+        const server_switch_port = pair.server_port.destination;
+        const client_switch_port = pair.client_port.destination;
+        const server_switch = server_switch_port?.parent;
+        const client_switch = client_switch_port?.parent;
+        if (!server_switch?.ethernet || !client_switch?.ethernet) return false;
+
+        const path = this._find_switch_path(server_switch, client_switch);
+        if (!path) return false;
+
+        for (let i = 0; i < path.length; i++) {
+            const sw = path[i];
+            const toward_client = i === path.length - 1
+                ? client_switch_port
+                : this._port_to_neighbor(sw, path[i + 1]);
+            const toward_server = i === 0
+                ? server_switch_port
+                : this._port_to_neighbor(sw, path[i - 1]);
+
+            if (!toward_client || !toward_server) return false;
+            sw.ethernet.forwarding_table[pair.client_port.l2Addr] = toward_client.id;
+            sw.ethernet.forwarding_table[pair.server_port.l2Addr] = toward_server.id;
+        }
+        return true;
+    }
+
     _apply_mode_highlights(mode) {
+        if (mode !== 'tcp' && this._tcp_highlight_interval) {
+            clearInterval(this._tcp_highlight_interval);
+            this._tcp_highlight_interval = null;
+        }
+
+        const show_stp = mode === 'stp';
+        this.renderer.set_blocked_ports_visible(show_stp);
         for (const n of this.sim_nodes) {
             this.renderer.set_node_highlighted(n.id, false);
-            if (n.type === 'switch') this.renderer.set_stp_root(n.id, n.stp?.is_root ?? false);
+            if (n.type === 'switch') this.renderer.set_stp_root(n.id, show_stp && (n.stp?.is_root ?? false));
         }
         const highlight = (types) => this.sim_nodes
             .filter(n => types.includes(n.type))
@@ -79,7 +168,13 @@ class NetworkSim extends React.Component {
         } else if (mode === 'dns') {
             highlight(['dns-root', 'dns-asn', 'dns-local']);
         } else if (mode === 'tcp') {
-            highlight(['client', 'server']);
+            this._refresh_tcp_highlights();
+            if (!this._tcp_highlight_interval) {
+                this._tcp_highlight_interval = setInterval(() => {
+                    if (!this._mounted || SimMode.getMode() !== 'tcp') return;
+                    this._refresh_tcp_highlights();
+                }, 250);
+            }
         }
     }
 
@@ -113,6 +208,7 @@ class NetworkSim extends React.Component {
         if (clients.length === 0 || this.hostname_registry.length === 0) return;
 
         const registry = this.hostname_registry;
+        const startup_pairs = this.startup_http_pairs || [];
         const rand_pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
         // Token bucket: starts full so the burst fires immediately after startup.
@@ -129,13 +225,33 @@ class NetworkSim extends React.Component {
             while (tokens > 0) { tokens--; fire_request(); }
         };
 
-        // Immediate wave: direct TCP to pre-resolved IPs so the SVG lights up before
-        // the DNS burst resolves. Pick random client + hostname each time.
+        this._startup_timeouts = [];
+
+        const fire_bootstrap_response = () => {
+            if (!this._mounted || startup_pairs.length === 0) return;
+            const pair = rand_pick(startup_pairs);
+            const client_port = 41000 + Math.floor(Math.random() * 20000);
+            if (!pair.client.prepare_bootstrap_session(pair.ip, client_port)) return;
+            this._seed_l2_forwarding_for_pair(pair);
+            pair.server.send_bootstrap_response(pair.client_ip, client_port);
+        };
+
+        // Paced local HTTP responses: same-subnet traffic uses the real TCP/HTTP
+        // stack but starts from an established session, so users see data transfer
+        // while DNS/routing/handshake-driven traffic ramps up.
+        const bootstrap_count = Math.min(Math.max(Config.DNS_BURST_SIZE * 3, 12), startup_pairs.length);
+        for (let i = 0; i < bootstrap_count; i++) {
+            const delay = i * 1100 + Math.random() * 180;
+            this._startup_timeouts.push(setTimeout(fire_bootstrap_response, delay));
+        }
+
+        // Follow-up wave: direct TCP to pre-resolved IPs so broader routed paths
+        // light up before the DNS burst resolves.
         const direct_count = Math.min(Config.DNS_BURST_SIZE, registry.length);
         for (let i = 0; i < direct_count; i++) {
             const entry = rand_pick(registry);
             setTimeout(() => rand_pick(clients).do_direct_request(entry.ip, entry.fqdn, true),
-                       i * 300 + Math.random() * 150);
+                       500 + i * 240 + Math.random() * 120);
         }
 
         // Drain the full initial bucket right away — this is the startup burst.
@@ -194,7 +310,9 @@ class NetworkSim extends React.Component {
 
         // hostname_registry: all resolvable FQDNs; stored on component and passed to every client
         this.hostname_registry = [];
+        this.startup_http_pairs = [];
         const hostname_registry = this.hostname_registry;
+        const startup_http_pairs = this.startup_http_pairs;
 
         // asn_bgp_routers[a] → BGPRouter for ASN a
         const asn_bgp_routers = [];
@@ -291,20 +409,23 @@ class NetworkSim extends React.Component {
                     srv.fqdn = fqdn;
                     local_dns._pending_zones.push({ fqdn, ip: srv_ip });
                     hostname_registry.push({ fqdn, ip: srv_ip });
-                    subnet_servers.push(srv);
+                    subnet_servers.push({ node: srv, port: srv_port, ip: srv_ip, fqdn });
                 }
 
                 // Queue record for ASN DNS: sub-{r}.asn-{a} → 10.{a}.{r}.200 (local DNS)
                 asn_dns_zone_queue.push({ label: `sub-${r}.asn-${a}`, ip: `10.${a}.${r}.200` });
 
                 // --- Clients ---
+                const subnet_clients = [];
                 for (let i = 0; i < NC; i++) {
                     const cli = new Client(`asn${a}-rtr${r}-cli${i}`, this.renderer);
                     cli.asn = a; cli.subnet = subnet_id;
                     add_node(cli, { asn: a, subnet: subnet_id });
                     const [cli_port] = connect(cli, asn_switches[Math.floor(Math.random() * NS)], { asn: a, subnet: subnet_id });
-                    cli_port.add_l3addr(`10.${a}.${r}.${1 + i}/24`);
+                    const cli_ip = `10.${a}.${r}.${1 + i}`;
+                    cli_port.add_l3addr(`${cli_ip}/24`);
                     cli.ip.routing_table.add_route("0.0.0.0/0", GATEWAY, 0);
+                    subnet_clients.push({ node: cli, port: cli_port, ip: cli_ip });
                 }
 
                 // --- L3 router ---
@@ -315,6 +436,22 @@ class NetworkSim extends React.Component {
                 // Port 0: L2-facing
                 const [rtr_l2_port] = connect(rtr, asn_switches[Math.floor(Math.random() * NS)], { asn: a, subnet: subnet_id });
                 rtr_l2_port.add_l3addr(`${GATEWAY}/24`);
+
+                for (const client of subnet_clients) {
+                    const server = subnet_servers[Math.floor(Math.random() * subnet_servers.length)];
+                    if (!server) continue;
+                    client.node.arp.seed_arp(server.ip, server.port.l2Addr);
+                    server.node.arp.seed_arp(client.ip, client.port.l2Addr);
+                    startup_http_pairs.push({
+                        client: client.node,
+                        client_port: client.port,
+                        client_ip: client.ip,
+                        server: server.node,
+                        server_port: server.port,
+                        ip: server.ip,
+                        fqdn: server.fqdn,
+                    });
+                }
 
                 // Port 1: BGP uplink
                 const bgp_port_idx = bgp.ports.length;

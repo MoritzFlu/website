@@ -142,6 +142,8 @@ export default class Renderer {
     packet_raf = null
     active_packets = []
     view_box = null
+    show_blocked_ports = false
+    _stp_roots = new Map()
     _blocked_markers = new Map()   // "link_id:f|r" → d3 circle selection
     _blocked_group                 // <g> that holds all blocked-port markers
     on_node_click = null           // set by Network.js; called with info object on node click
@@ -175,11 +177,25 @@ export default class Renderer {
                 .attr("fill", "#dc2626")
                 .attr("stroke", "#fff7ed")
                 .attr("stroke-width", 1.5 * VISUAL_SCALE)
-                .attr("pointer-events", "none");
+                .attr("pointer-events", "none")
+                .style("display", this.show_blocked_ports ? null : "none");
             this._blocked_markers.set(key, marker);
         } else {
             const m = this._blocked_markers.get(key);
             if (m) { m.remove(); this._blocked_markers.delete(key); }
+        }
+    }
+
+    set_blocked_ports_visible(visible) {
+        this.show_blocked_ports = visible;
+        if (!this._blocked_group) return;
+        this._blocked_group.style("display", visible ? null : "none");
+        for (const marker of this._blocked_markers.values()) {
+            marker.style("display", visible ? null : "none");
+        }
+        for (const [node_id, is_root] of this._stp_roots.entries()) {
+            this.svg.select('#' + node_id)
+                .style("filter", visible && is_root ? `drop-shadow(0 0 ${7 * VISUAL_SCALE}px #ca8a04)` : null);
         }
     }
 
@@ -207,7 +223,7 @@ export default class Renderer {
             let tmp = end; end = start; start = tmp;
         }
 
-        const opacity = _is_relevant(color, SimMode.getMode()) ? 1.0 : 0.2;
+        const opacity = _is_relevant(color, SimMode.getMode()) ? 1.0 : 0.06;
 
         this.active_packets.push({
             start,
@@ -300,8 +316,9 @@ export default class Renderer {
     // Highlight the STP root bridge with a golden background tint.
     set_stp_root(node_id, is_root) {
         if (!this.svg) return;
+        this._stp_roots.set(node_id, is_root);
         this.svg.select('#' + node_id)
-            .style("filter", is_root ? `drop-shadow(0 0 ${7 * VISUAL_SCALE}px #ca8a04)` : null);
+            .style("filter", is_root && this.show_blocked_ports ? `drop-shadow(0 0 ${7 * VISUAL_SCALE}px #ca8a04)` : null);
     }
 
     // Highlight a node with the site accent (used by routing/dns/tcp modes).
@@ -558,7 +575,14 @@ export default class Renderer {
             )];
             const ac = asn_centers[asn];
             subnets.forEach((subnet, i) => {
-                const angle = (2 * Math.PI * i / subnets.length) - Math.PI / 2;
+                let angle = (2 * Math.PI * i / subnets.length) - Math.PI / 2;
+                if (this.options.subnetSpreadAngle != null) {
+                    const outward = Math.atan2(ac.y - cy, ac.x - cx);
+                    const spread = this.options.subnetSpreadAngle;
+                    angle = subnets.length === 1
+                        ? outward
+                        : outward - spread / 2 + (spread * i) / (subnets.length - 1);
+                }
                 subnet_centers[subnet] = {
                     x: ac.x + SUBNET_RADIUS * Math.cos(angle),
                     y: ac.y + SUBNET_RADIUS * Math.sin(angle),

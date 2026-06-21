@@ -51,7 +51,7 @@ const PROTOCOLS = [
         description:
             'TCP (blue) provides reliable delivery via a 3-way handshake and sliding-window ACKs. ' +
             'HTTP (amber) rides on top to carry GET requests and chunked responses. ' +
-            'Clients and servers are highlighted (cyan). Click a server to see its hostname.',
+            'Clients and servers with active TCP sessions are highlighted (cyan). Click a server to see its hostname.',
     },
 ];
 
@@ -65,6 +65,9 @@ export default function ProtocolLegend({ activeMode, onModeChange }) {
         <Paper elevation={2} sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="overline" sx={{ lineHeight: 1.2 }}>
                 Protocol Legend
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+                Click a row to focus that protocol.
             </Typography>
 
             <List dense disablePadding>

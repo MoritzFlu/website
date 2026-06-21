@@ -58,6 +58,7 @@ export default class Client extends NetworkNode {
                 type: 'client',
                 id: this.id,
                 ip: this.ports[0]?.get_l3addr_witout_subnet(0) ?? null,
+                mac: this.ports[0]?.l2Addr ?? null,
                 arp_table: { ...this.arp.table },
             });
         });
@@ -83,6 +84,21 @@ export default class Client extends NetworkNode {
         connect(ip, 80, (conn_id) => {
             this.tcp.send(conn_id, [{ method: 'GET', url: fqdn }]);
         });
+    }
+
+    prepare_bootstrap_session(server_ip, client_port) {
+        const my_ip = this.ports[0]?.get_l3addr_witout_subnet(0);
+        if (!my_ip) return null;
+        const conn_id = `${my_ip}:${client_port}:${server_ip}:80`;
+        this.tcp.connections[conn_id] = {
+            role: 'client', state: 'ESTABLISHED',
+            my_ip, my_port: client_port,
+            peer_ip: server_ip, peer_port: 80,
+            seq: 1, peer_seq: 0,
+            send_queue: [], send_start: 0, send_base: 0,
+            on_established: null, on_data: null, on_close: null,
+        };
+        return conn_id;
     }
 
     // Legacy alias kept for compatibility.

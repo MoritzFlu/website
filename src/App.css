@@ -233,7 +233,7 @@ button {
 }
 
 .network-preview {
-  height: clamp(460px, 54vw, 560px);
+  height: clamp(360px, 42vw, 440px);
   contain: layout paint;
   isolation: isolate;
 }
@@ -456,6 +456,269 @@ button {
   text-decoration: none;
 }
 
+.sim-shell {
+  width: min(1440px, calc(100% - 32px));
+  min-height: calc(100vh - 96px);
+}
+
+.sim-header {
+  padding-right: 36px;
+  padding-left: 36px;
+}
+
+.sim-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 34px 36px 24px;
+}
+
+.sim-intro h1 {
+  max-width: 760px;
+  margin: 12px 0 0;
+  color: var(--ink);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.12;
+}
+
+.sim-intro p {
+  max-width: 720px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.sim-stat {
+  display: grid;
+  min-width: 112px;
+  border-left: 1px solid var(--line);
+  padding-left: 22px;
+  color: var(--soft);
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: right;
+}
+
+.sim-stat span {
+  color: var(--accent);
+  font-size: 31px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.sim-stat small {
+  margin-top: 5px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.sim-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(250px, 300px);
+  gap: 16px;
+  min-height: 690px;
+  padding: 0 36px 36px;
+}
+
+.sim-controls,
+.sim-main,
+.sim-inspector .MuiPaper-root {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.sim-controls {
+  align-self: start;
+  padding: 18px;
+}
+
+.sim-control-list {
+  display: grid;
+  gap: 15px;
+}
+
+.sim-control {
+  display: grid;
+  gap: 4px;
+}
+
+.sim-control {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.sim-control legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  padding: 0;
+}
+
+.sim-control b,
+.sim-control em,
+.sim-range-inputs,
+.sim-toolbar-copy,
+.sim-regenerate {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.sim-control b {
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.sim-control em {
+  color: var(--accent);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.sim-range-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.sim-range-inputs label {
+  display: grid;
+  gap: 4px;
+}
+
+.sim-range-inputs span {
+  color: var(--soft);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.sim-range-inputs input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fafaf9;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 8px;
+}
+
+.sim-range-inputs input:focus {
+  border-color: var(--accent);
+  outline: 2px solid rgba(13, 148, 136, 0.14);
+  outline-offset: 1px;
+}
+
+.sim-regenerate.MuiButton-root {
+  margin-top: 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 9px 13px;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.sim-regenerate.MuiButton-root:hover {
+  background: #0f766e;
+  box-shadow: none;
+}
+
+.sim-main {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.sim-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 50px;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px;
+}
+
+.sim-toolbar .live-badge {
+  position: static;
+  flex: none;
+}
+
+.sim-toolbar-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sim-toolbar-copy svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.sim-toolbar-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sim-canvas {
+  flex: 1;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+.sim-canvas #network {
+  height: 100%;
+}
+
+.sim-inspector {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.sim-inspector .MuiPaper-root {
+  box-shadow: none;
+}
+
+.sim-inspector .MuiTypography-overline {
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.sim-inspector .MuiTypography-caption,
+.sim-inspector .MuiTypography-body2 {
+  color: var(--muted);
+}
+
+.sim-node-panel {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+
 @media (max-width: 760px) {
   .App {
     background: #e7e5df;
@@ -542,7 +805,7 @@ button {
   }
 
   .network-preview {
-    height: 240px;
+    height: 210px;
   }
 
   .live-badge {
@@ -638,5 +901,100 @@ button {
     display: grid;
     padding: 24px 22px;
     font-size: 11.5px;
+  }
+
+  .sim-shell {
+    width: min(430px, calc(100% - 16px));
+    min-height: auto;
+  }
+
+  .sim-header {
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+
+  .sim-intro {
+    display: grid;
+    gap: 16px;
+    padding: 28px 22px 18px;
+  }
+
+  .sim-intro h1 {
+    font-size: 26px;
+    line-height: 1.14;
+  }
+
+  .sim-intro p {
+    font-size: 13.5px;
+  }
+
+  .sim-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    min-width: 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+    padding-top: 14px;
+    padding-left: 0;
+    text-align: left;
+  }
+
+  .sim-stat span {
+    font-size: 25px;
+  }
+
+  .sim-workspace {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px 18px;
+  }
+
+  .sim-controls {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .sim-control-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+  }
+
+  .sim-control b,
+  .sim-control em {
+    font-size: 11.5px;
+  }
+
+  .sim-main {
+    min-height: 520px;
+  }
+
+  .sim-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .sim-toolbar-copy {
+    font-size: 11px;
+  }
+
+  .sim-toolbar-copy span {
+    white-space: normal;
+  }
+
+  .sim-canvas {
+    min-height: 440px;
+  }
+
+  .sim-inspector {
+    overflow: visible;
+  }
+
+  .sim-node-panel {
+    max-height: 360px;
   }
 }

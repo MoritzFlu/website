@@ -81,6 +81,10 @@ function SwitchInfo({ info }) {
                     ))}
                 </TableBody>
             </Table>
+            <Box sx={{ mt: 1.5 }}>
+                <Typography variant="caption" color="text.secondary">Forwarding Table</Typography>
+                <ForwardingTable entries={info.forwarding_table} />
+            </Box>
         </>
     );
 }
@@ -133,11 +137,7 @@ function ClientInfo({ info }) {
     const entries = Object.entries(info.arp_table);
     return (
         <>
-            {info.ip && (
-                <Typography variant="caption" color="text.secondary" component="p" sx={{ mb: 1 }}>
-                    IP: {info.ip}
-                </Typography>
-            )}
+            <HostInterfaceInfo info={info} />
             <Typography variant="caption" color="text.secondary">ARP Table</Typography>
             {entries.length === 0 ? (
                 <Typography variant="caption" color="text.secondary" component="p">
@@ -169,11 +169,7 @@ function ServerInfo({ info }) {
     const entries = Object.entries(info.arp_table);
     return (
         <>
-            {info.ip && (
-                <Typography variant="caption" color="text.secondary" component="p" sx={{ mb: 1 }}>
-                    IP: {info.ip}
-                </Typography>
-            )}
+            <HostInterfaceInfo info={info} />
             {info.hostname && (
                 <Typography variant="caption" color="text.secondary" component="p" sx={{ mb: 1 }}>
                     Hostname: <strong>{info.hostname}</strong>
@@ -203,6 +199,51 @@ function ServerInfo({ info }) {
                 </Table>
             )}
         </>
+    );
+}
+
+function HostInterfaceInfo({ info }) {
+    return (
+        <Box sx={{ display: 'grid', gap: 0.25, mb: 1 }}>
+            {info.ip && (
+                <Typography variant="caption" color="text.secondary" component="p">
+                    IP: <strong>{info.ip}</strong>
+                </Typography>
+            )}
+            {info.mac && (
+                <Typography variant="caption" color="text.secondary" component="p">
+                    MAC: <Box component="span" sx={{ fontFamily: 'monospace', fontSize: 10 }}>{info.mac}</Box>
+                </Typography>
+            )}
+        </Box>
+    );
+}
+
+function ForwardingTable({ entries }) {
+    if (!entries || entries.length === 0) {
+        return (
+            <Typography variant="caption" color="text.secondary" component="p">
+                (empty — no MAC addresses learned yet)
+            </Typography>
+        );
+    }
+    return (
+        <Table size="small" sx={{ mt: 0.5 }}>
+            <TableHead>
+                <TableRow>
+                    <TableCell sx={thSx}>MAC</TableCell>
+                    <TableCell sx={thSx}>Port</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {entries.map((entry) => (
+                    <TableRow key={`${entry.mac}-${entry.port}`}>
+                        <TableCell sx={{ ...tdSx, fontFamily: 'monospace', fontSize: 10 }}>{entry.mac}</TableCell>
+                        <TableCell sx={tdSx}>{entry.port}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
     );
 }
 
