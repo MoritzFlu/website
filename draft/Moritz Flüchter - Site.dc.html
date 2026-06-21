@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: inherit; }
+</style>
+</helmet>
+
+<div style="--accent: {{ accent }}; --bg: {{ bg }}; width:max-content; min-width:100%; min-height:100vh; box-sizing:border-box; padding:48px; background:#e7e5df; font-family:'IBM Plex Sans',sans-serif;">
+
+  <div style="display:flex; gap:56px; align-items:flex-start;">
+
+    <!-- ============ DIRECTION A — single column scholarly ============ -->
+    <div style="display:flex; flex-direction:column; gap:14px; flex:none;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#78716c;">Direction A · Single column, scholarly</div>
+      <div style="width:1040px; background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.1); overflow:hidden;">
+        <div style="background:var(--bg,#fafaf9);">
+
+          <!-- top bar -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 64px; border-bottom:1px solid #e7e5e4; background:rgba(255,255,255,.7);">
+            <div style="display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#1c1917;">
+              <span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:var(--accent,#0d9488);"></span>
+              moritz&#8202;flüchter
+            </div>
+            <div style="display:flex; gap:26px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#57534e;">
+              <span>About</span><span>Research</span><span>Publications</span><span>Projects</span><span>Teaching</span>
+            </div>
+          </div>
+
+          <!-- hero -->
+          <div style="padding:64px 64px 44px; max-width:820px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:18px;">Chair of Communication Networks · University of Tübingen</div>
+            <h1 style="margin:0; font-size:52px; line-height:1.05; letter-spacing:-.02em; color:#1c1917; font-weight:600;">Moritz Flüchter</h1>
+            <div style="margin-top:14px; font-size:19px; color:#44403c; font-weight:500;">PhD student &amp; research assistant — programmable networks</div>
+            <p style="margin:22px 0 0; font-size:17px; line-height:1.65; color:#57534e; max-width:680px;">I work on bringing determinism and flexibility to communication networks — Time-Sensitive Networking (TSN), BIER multicast, and P4 data-plane programming, with a recent focus on satellite networking and eBPF on Linux.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:28px;">
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="5">
+                <a href="{{ l.href }}" target="_blank" rel="noopener" style="text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#1c1917; border:1px solid #d6d3d1; border-radius:999px; padding:7px 15px; background:#fff;" style-hover="border-color:var(--accent,#0d9488); color:var(--accent,#0d9488);">{{ l.label }} ↗</a>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- network sim -->
+          <div style="padding:0 64px 56px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Network simulator</span>
+              <span style="height:1px; background:#e7e5e4; flex:1;"></span>
+            </div>
+            <div style="position:relative; height:340px; border:1px solid #d6d3d1; border-radius:8px; overflow:hidden; background:repeating-linear-gradient(135deg,#fafaf9,#fafaf9 11px,#f4f3f1 11px,#f4f3f1 22px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+              <div style="position:absolute; top:14px; left:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#a8a29e; background:#fff; border:1px solid #e7e5e4; border-radius:4px; padding:4px 9px;">network-simulator.js</div>
+              <div style="position:absolute; top:14px; right:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent,#0d9488); display:flex; align-items:center; gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent,#0d9488);display:inline-block;"></span>live</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:20px; color:#44403c; letter-spacing:.02em;">⬡ &nbsp;multi-AS topology</div>
+              <div style="font-size:14px; color:#78716c; text-align:center; max-width:420px;">The interactive simulation mounts here and runs entirely in your browser. Refresh the page for a freshly generated network.</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#a8a29e; margin-top:4px;">[ canvas mount point ]</div>
+            </div>
+          </div>
+
+          <!-- publications -->
+          <div style="padding:0 64px 56px; max-width:880px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Publications</span>
+              <span style="height:1px; background:#e7e5e4; flex:1;"></span>
+            </div>
+            <sc-for list="{{ publications }}" as="p" hint-placeholder-count="5">
+              <div style="display:flex; gap:22px; padding:18px 0; border-top:1px solid #e7e5e4; align-items:baseline;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#a8a29e; width:46px; flex:none;">{{ p.year }}</div>
+                <div style="flex:1;">
+                  <div style="font-size:16px; color:#1c1917; font-weight:500; line-height:1.4;">{{ p.title }}</div>
+                  <div style="font-size:14px; color:#78716c; margin-top:4px;">{{ p.venue }}</div>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent,#0d9488); border:1px solid #e7e5e4; border-radius:999px; padding:3px 10px; flex:none;">{{ p.type }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- projects -->
+          <div style="padding:0 64px 56px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Projects</span>
+              <span style="height:1px; background:#e7e5e4; flex:1;"></span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <sc-for list="{{ projects }}" as="pr" hint-placeholder-count="4">
+                <a href="{{ pr.href }}" target="_blank" rel="noopener" style="display:block; text-decoration:none; border:1px solid #e7e5e4; border-radius:6px; padding:20px; background:#fff;" style-hover="border-color:var(--accent,#0d9488);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div style="font-weight:600; color:#1c1917; font-size:16px;">{{ pr.name }}</div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:#78716c; background:#f5f5f4; border-radius:4px; padding:3px 7px;">{{ pr.tag }}</span>
+                  </div>
+                  <div style="font-size:14px; color:#57534e; line-height:1.55; margin-top:8px;">{{ pr.desc }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent,#0d9488); margin-top:14px;">open ↗</div>
+                </a>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- teaching + talks -->
+          <div style="padding:0 64px 56px; display:grid; grid-template-columns:1fr 1fr; gap:48px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Talks</span>
+                <span style="height:1px; background:#e7e5e4; flex:1;"></span>
+              </div>
+              <sc-for list="{{ talks }}" as="t" hint-placeholder-count="2">
+                <div style="padding:14px 0; border-top:1px solid #e7e5e4;">
+                  <div style="font-size:15px; color:#1c1917; font-weight:500;">{{ t.title }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#78716c; margin-top:4px;">{{ t.year }} · {{ t.where }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Teaching</span>
+                <span style="height:1px; background:#e7e5e4; flex:1;"></span>
+              </div>
+              <sc-for list="{{ teaching }}" as="c" hint-placeholder-count="2">
+                <div style="padding:14px 0; border-top:1px solid #e7e5e4;">
+                  <div style="font-size:15px; color:#1c1917; font-weight:500;">{{ c.title }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#78716c; margin-top:4px;">{{ c.term }} · {{ c.role }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- footer -->
+          <div style="padding:30px 64px; border-top:1px solid #e7e5e4; background:#fff; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#a8a29e;">© 2026 Moritz Flüchter · Tübingen</div>
+            <a href="mailto:moritz.fluechter@uni-tuebingen.de" style="text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--accent,#0d9488);">moritz.fluechter@uni-tuebingen.de</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DIRECTION A — mobile ============ -->
+    <div style="display:flex; flex-direction:column; gap:14px; flex:none;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#78716c;">A · Mobile</div>
+      <div style="width:390px; background:#fff; border-radius:30px; box-shadow:0 4px 24px rgba(0,0,0,.12); overflow:hidden; border:1px solid #d6d3d1;">
+        <div style="background:var(--bg,#fafaf9);">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid #e7e5e4; background:rgba(255,255,255,.8);">
+            <div style="display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#1c1917;"><span style="width:8px;height:8px;border-radius:2px;background:var(--accent,#0d9488);"></span>m&#8202;flüchter</div>
+            <div style="display:flex; flex-direction:column; gap:3.5px;"><span style="width:20px;height:2px;background:#44403c;"></span><span style="width:20px;height:2px;background:#44403c;"></span><span style="width:20px;height:2px;background:#44403c;"></span></div>
+          </div>
+          <div style="padding:34px 22px 26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:14px;">Communication Networks · Tübingen</div>
+            <h1 style="margin:0; font-size:34px; line-height:1.06; letter-spacing:-.02em; color:#1c1917; font-weight:600;">Moritz Flüchter</h1>
+            <div style="margin-top:10px; font-size:15px; color:#44403c; font-weight:500;">PhD student — programmable networks</div>
+            <p style="margin:16px 0 0; font-size:14.5px; line-height:1.6; color:#57534e;">TSN, BIER, and P4 data-plane programming, with a focus on satellite networking and eBPF.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:20px;">
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="5">
+                <a href="{{ l.href }}" target="_blank" rel="noopener" style="text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#1c1917; border:1px solid #d6d3d1; border-radius:999px; padding:6px 12px; background:#fff;">{{ l.label }} ↗</a>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:0 22px 30px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:12px;">Network simulator</div>
+            <div style="position:relative; height:200px; border:1px solid #d6d3d1; border-radius:8px; background:repeating-linear-gradient(135deg,#fafaf9,#fafaf9 10px,#f4f3f1 10px,#f4f3f1 20px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:15px; color:#44403c;">⬡ live topology</div>
+              <div style="font-size:12px; color:#78716c; text-align:center; padding:0 22px;">Runs in your browser. Refresh for a new network.</div>
+            </div>
+          </div>
+          <div style="padding:0 22px 30px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:4px;">Publications</div>
+            <sc-for list="{{ publications }}" as="p" hint-placeholder-count="5">
+              <div style="padding:14px 0; border-top:1px solid #e7e5e4;">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#a8a29e;">{{ p.year }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; color:var(--accent,#0d9488); border:1px solid #e7e5e4; border-radius:999px; padding:2px 8px;">{{ p.type }}</span>
+                </div>
+                <div style="font-size:14.5px; color:#1c1917; font-weight:500; line-height:1.4; margin-top:6px;">{{ p.title }}</div>
+                <div style="font-size:12.5px; color:#78716c; margin-top:3px;">{{ p.venue }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:0 22px 30px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:12px;">Projects</div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <sc-for list="{{ projects }}" as="pr" hint-placeholder-count="4">
+                <a href="{{ pr.href }}" target="_blank" rel="noopener" style="display:block; text-decoration:none; border:1px solid #e7e5e4; border-radius:6px; padding:16px; background:#fff;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div style="font-weight:600; color:#1c1917; font-size:14.5px;">{{ pr.name }}</div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; color:#78716c; background:#f5f5f4; border-radius:4px; padding:3px 6px;">{{ pr.tag }}</span>
+                  </div>
+                  <div style="font-size:13px; color:#57534e; line-height:1.5; margin-top:6px;">{{ pr.desc }}</div>
+                </a>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:24px 22px; border-top:1px solid #e7e5e4; background:#fff; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#a8a29e;">© 2026 · Tübingen</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DIRECTION B — sidebar + content ============ -->
+    <div style="display:flex; flex-direction:column; gap:14px; flex:none;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#78716c;">Direction B · Sidebar + content</div>
+      <div style="width:1100px; background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.1); overflow:hidden;">
+        <div style="display:flex; min-height:1200px;">
+
+          <!-- sidebar -->
+          <div style="width:320px; flex:none; background:var(--bg,#fafaf9); border-right:1px solid #e7e5e4; padding:44px 32px; display:flex; flex-direction:column; gap:26px;">
+            <div style="width:84px; height:84px; border-radius:50%; background:repeating-linear-gradient(135deg,#eceae7,#eceae7 6px,#e3e0dc 6px,#e3e0dc 12px); border:1px solid #d6d3d1; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#a8a29e;">photo</div>
+            <div>
+              <h1 style="margin:0; font-size:27px; line-height:1.1; letter-spacing:-.01em; color:#1c1917; font-weight:600;">Moritz Flüchter</h1>
+              <div style="margin-top:8px; font-size:14.5px; color:#57534e; line-height:1.5;">PhD student &amp; research assistant, Chair of Communication Networks, University of Tübingen.</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <sc-for list="{{ navB }}" as="n" hint-placeholder-count="6">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#44403c; padding:7px 0; border-bottom:1px solid #ededeb;">{{ n }}</div>
+              </sc-for>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:9px; margin-top:auto;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#a8a29e;">Elsewhere</div>
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="5">
+                <a href="{{ l.href }}" target="_blank" rel="noopener" style="text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#1c1917; display:flex; justify-content:space-between;" style-hover="color:var(--accent,#0d9488);"><span>{{ l.label }}</span><span style="color:#a8a29e;">↗</span></a>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- content -->
+          <div style="flex:1; padding:48px 52px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:14px;">About</div>
+            <p style="margin:0 0 40px; font-size:20px; line-height:1.6; color:#292524; font-weight:400; max-width:640px;">I build networks that are both <span style="color:var(--accent,#0d9488); font-weight:500;">deterministic</span> and <span style="color:var(--accent,#0d9488); font-weight:500;">programmable</span> — TSN, BIER multicast, and P4 data planes, lately applied to satellite networking and eBPF on Linux.</p>
+
+            <!-- network sim featured -->
+            <div style="position:relative; height:300px; border:1px solid #d6d3d1; border-radius:10px; overflow:hidden; background:repeating-linear-gradient(135deg,#fafaf9,#fafaf9 11px,#f4f3f1 11px,#f4f3f1 22px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; margin-bottom:48px;">
+              <div style="position:absolute; top:14px; left:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#a8a29e; background:#fff; border:1px solid #e7e5e4; border-radius:4px; padding:4px 9px;">network-simulator.js</div>
+              <div style="position:absolute; top:14px; right:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent,#0d9488); display:flex; align-items:center; gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent,#0d9488);"></span>live demo</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:#44403c;">⬡ &nbsp;interactive multi-AS topology</div>
+              <div style="font-size:13.5px; color:#78716c; text-align:center; max-width:420px;">My in-browser network simulator mounts here — explore a freshly generated topology on every refresh.</div>
+            </div>
+
+            <!-- publications with filter tabs -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488);">Publications</div>
+              <div style="display:flex; gap:6px;">
+                <sc-for list="{{ pubFilters }}" as="f" hint-placeholder-count="6">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#57534e; border:1px solid #e7e5e4; border-radius:999px; padding:4px 11px;" style-hover="border-color:var(--accent,#0d9488); color:var(--accent,#0d9488);">{{ f }}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="border:1px solid #e7e5e4; border-radius:8px; overflow:hidden; margin-bottom:48px;">
+              <sc-for list="{{ publications }}" as="p" hint-placeholder-count="5">
+                <div style="display:flex; gap:18px; padding:16px 20px; border-bottom:1px solid #ededeb; align-items:baseline; background:#fff;" style-hover="background:#fafaf9;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#a8a29e; width:42px; flex:none;">{{ p.year }}</div>
+                  <div style="flex:1;">
+                    <div style="font-size:15.5px; color:#1c1917; font-weight:500; line-height:1.4;">{{ p.title }}</div>
+                    <div style="font-size:13.5px; color:#78716c; margin-top:3px;">{{ p.venue }}</div>
+                  </div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent,#0d9488); border:1px solid #e7e5e4; border-radius:999px; padding:3px 10px; flex:none;">{{ p.type }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- projects -->
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:16px;">Projects</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:48px;">
+              <sc-for list="{{ projects }}" as="pr" hint-placeholder-count="4">
+                <a href="{{ pr.href }}" target="_blank" rel="noopener" style="display:block; text-decoration:none; border:1px solid #e7e5e4; border-radius:8px; padding:18px; background:#fff;" style-hover="border-color:var(--accent,#0d9488); background:#fafaf9;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div style="font-weight:600; color:#1c1917; font-size:15.5px;">{{ pr.name }}</div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#78716c; background:#f5f5f4; border-radius:4px; padding:3px 7px;">{{ pr.tag }}</span>
+                  </div>
+                  <div style="font-size:13.5px; color:#57534e; line-height:1.55; margin-top:8px;">{{ pr.desc }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--accent,#0d9488); margin-top:12px;">open ↗</div>
+                </a>
+              </sc-for>
+            </div>
+
+            <!-- talks + teaching -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:4px;">Talks</div>
+                <sc-for list="{{ talks }}" as="t" hint-placeholder-count="2">
+                  <div style="padding:13px 0; border-top:1px solid #e7e5e4;">
+                    <div style="font-size:14.5px; color:#1c1917; font-weight:500;">{{ t.title }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#78716c; margin-top:4px;">{{ t.year }} · {{ t.where }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:4px;">Teaching</div>
+                <sc-for list="{{ teaching }}" as="c" hint-placeholder-count="2">
+                  <div style="padding:13px 0; border-top:1px solid #e7e5e4;">
+                    <div style="font-size:14.5px; color:#1c1917; font-weight:500;">{{ c.title }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#78716c; margin-top:4px;">{{ c.term }} · {{ c.role }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DIRECTION B — mobile ============ -->
+    <div style="display:flex; flex-direction:column; gap:14px; flex:none;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#78716c;">B · Mobile</div>
+      <div style="width:390px; background:#fff; border-radius:30px; box-shadow:0 4px 24px rgba(0,0,0,.12); overflow:hidden; border:1px solid #d6d3d1;">
+        <div>
+          <!-- header card with photo -->
+          <div style="background:var(--bg,#fafaf9); padding:26px 22px 24px; border-bottom:1px solid #e7e5e4;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#1c1917; display:flex; align-items:center; gap:8px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--accent,#0d9488);"></span>m&#8202;flüchter</div>
+              <div style="display:flex; flex-direction:column; gap:3.5px;"><span style="width:20px;height:2px;background:#44403c;"></span><span style="width:20px;height:2px;background:#44403c;"></span><span style="width:20px;height:2px;background:#44403c;"></span></div>
+            </div>
+            <div style="display:flex; gap:16px; align-items:center;">
+              <div style="width:60px; height:60px; flex:none; border-radius:50%; background:repeating-linear-gradient(135deg,#eceae7,#eceae7 6px,#e3e0dc 6px,#e3e0dc 12px); border:1px solid #d6d3d1; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:9px; color:#a8a29e;">photo</div>
+              <div>
+                <h1 style="margin:0; font-size:23px; line-height:1.1; color:#1c1917; font-weight:600;">Moritz Flüchter</h1>
+                <div style="margin-top:5px; font-size:13px; color:#57534e; line-height:1.4;">PhD student — programmable networks</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:7px; margin-top:18px;">
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="5">
+                <a href="{{ l.href }}" target="_blank" rel="noopener" style="text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#1c1917; border:1px solid #d6d3d1; border-radius:999px; padding:5px 11px; background:#fff;">{{ l.label }}</a>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="padding:24px 22px 28px;">
+            <p style="margin:0; font-size:15px; line-height:1.6; color:#292524;">Building networks that are both <span style="color:var(--accent,#0d9488); font-weight:500;">deterministic</span> and <span style="color:var(--accent,#0d9488); font-weight:500;">programmable</span> — TSN, BIER, P4, satellite, eBPF.</p>
+          </div>
+
+          <div style="padding:0 22px 28px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:12px;">Network simulator</div>
+            <div style="position:relative; height:190px; border:1px solid #d6d3d1; border-radius:10px; background:repeating-linear-gradient(135deg,#fafaf9,#fafaf9 10px,#f4f3f1 10px,#f4f3f1 20px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+              <div style="position:absolute; top:12px; right:14px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--accent,#0d9488); display:flex; align-items:center; gap:5px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent,#0d9488);"></span>live</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:15px; color:#44403c;">⬡ topology</div>
+              <div style="font-size:12px; color:#78716c; text-align:center; padding:0 24px;">Interactive, in your browser.</div>
+            </div>
+          </div>
+
+          <div style="padding:0 22px 28px;">
+            <div style="display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;">
+              <sc-for list="{{ pubFilters }}" as="f" hint-placeholder-count="6">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#57534e; border:1px solid #e7e5e4; border-radius:999px; padding:4px 10px;">{{ f }}</span>
+              </sc-for>
+            </div>
+            <div style="border:1px solid #e7e5e4; border-radius:8px; overflow:hidden;">
+              <sc-for list="{{ publications }}" as="p" hint-placeholder-count="5">
+                <div style="padding:13px 16px; border-bottom:1px solid #ededeb;">
+                  <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#a8a29e;">{{ p.year }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; color:var(--accent,#0d9488); border:1px solid #e7e5e4; border-radius:999px; padding:2px 7px;">{{ p.type }}</span>
+                  </div>
+                  <div style="font-size:14px; color:#1c1917; font-weight:500; line-height:1.4; margin-top:5px;">{{ p.title }}</div>
+                  <div style="font-size:12px; color:#78716c; margin-top:3px;">{{ p.venue }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="padding:0 22px 30px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent,#0d9488); margin-bottom:12px;">Projects</div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <sc-for list="{{ projects }}" as="pr" hint-placeholder-count="4">
+                <a href="{{ pr.href }}" target="_blank" rel="noopener" style="display:block; text-decoration:none; border:1px solid #e7e5e4; border-radius:8px; padding:15px; background:#fff;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div style="font-weight:600; color:#1c1917; font-size:14px;">{{ pr.name }}</div>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; color:#78716c; background:#f5f5f4; border-radius:4px; padding:3px 6px;">{{ pr.tag }}</span>
+                  </div>
+                  <div style="font-size:12.5px; color:#57534e; line-height:1.5; margin-top:6px;">{{ pr.desc }}</div>
+                </a>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:22px; border-top:1px solid #e7e5e4; background:var(--bg,#fafaf9); font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#a8a29e;">© 2026 Moritz Flüchter</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1400, &quot;height&quot;: 900 },
+  &quot;accent&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#0d9488&quot;, &quot;options&quot;: [&quot;#0d9488&quot;, &quot;#2563eb&quot;, &quot;#ea580c&quot;, &quot;#7c3aed&quot;, &quot;#475569&quot;], &quot;tsType&quot;: &quot;string&quot; },
+  &quot;bg&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#fafaf9&quot;, &quot;options&quot;: [&quot;#fafaf9&quot;, &quot;#f8fafc&quot;, &quot;#ffffff&quot;], &quot;tsType&quot;: &quot;string&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      accent: this.props.accent ?? '#0d9488',
+      bg: this.props.bg ?? '#fafaf9',
+      navB: ['About', 'Network simulator', 'Publications', 'Projects', 'Talks', 'Teaching'],
+      pubFilters: ['All', 'Journal', 'Conference', 'Workshop', 'Preprint', 'Talks'],
+      links: [
+        { label: 'GitHub', href: 'https://github.com/MoritzFlu' },
+        { label: 'Scholar', href: 'https://scholar.google.com/citations?user=P15hesUAAAAJ&hl=en' },
+        { label: 'LinkedIn', href: 'https://www.linkedin.com/in/moritz-fl%C3%BCchter-7bba5a18a/' },
+        { label: 'University', href: 'https://uni-tuebingen.de/fakultaeten/mathematisch-naturwissenschaftliche-fakultaet/fachbereiche/informatik/lehrstuehle/kommunikationsnetze/staff/moritz-fluechter/' },
+        { label: 'Email', href: 'mailto:moritz.fluechter@uni-tuebingen.de' },
+      ],
+      publications: [
+        { year: '2025', type: 'Journal', title: 'TSN-unaware Integration of Time-Sensitive Networking', venue: 'IEEE/ACM Transactions on Networking' },
+        { year: '2024', type: 'Conference', title: 'A Generic P4 Controller for In-Network Computing', venue: 'IEEE Conference on Network Softwarization (NetSoft)' },
+        { year: '2024', type: 'Workshop', title: 'BIER-TE Subset Extension for Scalable Multicast', venue: 'ACM SIGCOMM Workshop' },
+        { year: '2025', type: 'Preprint', title: 'eBPF-based Data-Plane Acceleration for Satellite Links', venue: 'arXiv preprint' },
+        { year: '2023', type: 'Conference', title: 'Programmable Data Planes for Deterministic Networking', venue: 'IFIP Networking' },
+      ],
+      talks: [
+        { year: '2024', title: 'Data-Plane Programming with P4', where: 'KuVS Fachgespräch, Tübingen' },
+        { year: '2023', title: 'Time-Sensitive Networking in Practice', where: 'University of Tübingen' },
+      ],
+      projects: [
+        { name: 'TSN-unaware Integration', desc: 'Extending Time-Sensitive Networking guarantees to legacy, non-TSN end stations.', tag: 'TSN', href: 'https://github.com/MoritzFlu' },
+        { name: 'Generic P4 Controller', desc: 'A reusable control plane that drives heterogeneous P4 targets.', tag: 'P4', href: 'https://github.com/MoritzFlu' },
+        { name: 'BIER-TE Subset Extension', desc: 'Tree-engineered multicast forwarding that scales to large topologies.', tag: 'BIER', href: 'https://github.com/MoritzFlu' },
+        { name: 'Browser Network Simulator', desc: 'Interactive multi-AS topology simulation that runs entirely in the browser.', tag: 'WASM', href: 'https://github.com/MoritzFlu' },
+      ],
+      teaching: [
+        { term: 'WS 24/25', title: 'Communication Networks', role: 'Teaching Assistant' },
+        { term: 'SS 24', title: 'Network Softwarization Seminar', role: 'Co-supervisor' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -28,17 +28,9 @@ export default class Port {
         this.parent = parent;
         this.renderer = renderer;
 
-        // TODO: add collision handling
         this.l2Addr = randomMac();
+        // IP addresses are assigned externally by the topology builder via add_l3addr()
         this.l3Addr = [];
-
-        // TODO: Deceide IP(s) via config file? or implement DHCP?
-        if (this.parent.type === "server") {
-            this.add_l3addr("10.0.0." + this.parent.id.match(/\d+/)[0] + "/16");
-        }
-        if (this.parent.type === "client") {
-            this.add_l3addr("10.0.1." + this.parent.id.match(/\d+/)[0] + "/16");
-        }
 
         // Bind functions that may be called via setTimeout
         this.receive_packet = this.receive_packet.bind(this);
@@ -98,9 +90,11 @@ export default class Port {
 
     block() {
         this.blocked = true;
+        if (this.renderer && this.link) this.renderer.set_port_blocked(this.link.id, this.reversed, true);
     }
     unblock() {
         this.blocked = false;
+        if (this.renderer && this.link) this.renderer.set_port_blocked(this.link.id, this.reversed, false);
     }
 
     // Once port is set in reverse mode, does not have to be changed back again
@@ -123,13 +117,9 @@ export default class Port {
         if (this.blocked) {
             return
         } else {
-
-            // Tell renderer to animate packet
-            this.renderer.anim_packet(this.link.id, packet.color, this.speed, this.reversed);
-
-            // Set timeout to call packet handling on receiver
-            // Bind ensures that packet is passed as paramter when called
-            setTimeout(this.destination.receive_packet.bind(null, packet), this.speed);
+            const delay = this.speed * Config.sim.time_factor;
+            this.renderer.anim_packet(this.link.id, packet.color, delay, this.reversed);
+            setTimeout(this.destination.receive_packet.bind(null, packet), delay);
         }
     }
 

@@ -39,7 +39,7 @@ export default class Ethernet {
 
         // Check if handler already exists
         if ( ethertype in this.l3Protos) {
-            console.warn("Overwriting handler for ", ethertype, "from ", this.this.l3Protos[ethertype], "to",handler);
+            console.warn("Overwriting handler for ", ethertype, "from ", this.l3Protos[ethertype], "to",handler);
         }
 
         // Store reference for handler

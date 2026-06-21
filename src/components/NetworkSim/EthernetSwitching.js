@@ -17,9 +17,11 @@ export default class EthernetSwitching {
         this.parent.register_packet_handler(this.type, this.receive);
     }
 
-    update() {
-
+    flush() {
+        this.forwarding_table = {};
     }
+
+    update() {}
 
     receive(packet, port) {
 
@@ -34,6 +36,10 @@ export default class EthernetSwitching {
 
         // Learn address from port
         // TODO: add lifetime and remove and maybe more sophisticated handling of colissions
+        const prev = this.forwarding_table[src];
+        if (prev !== undefined && prev !== port) {
+            console.warn(`[L2-MOVE] ${this.parent.id}: MAC ${src} MOVED from port ${prev} → ${port}  (dst=${dst})`);
+        }
         this.forwarding_table[src] = port;
 
         // If destination is broadcast address, broadcast packet
@@ -42,16 +48,14 @@ export default class EthernetSwitching {
             return
         }
 
-        // Try to get output port from forwarding
+        // Try to get output port from forwarding table.
+        // If the port is blocked (STP state change after learning), fall back to flooding
+        // rather than silently dropping — the spanning tree's active ports will deliver it.
         let out_port = this.forwarding_table[dst];
 
-        //console.log("SWITCHING IN",port,"OUT",out_port,"TABLE",this.forwarding_table);
-
-        if (out_port === undefined) {
-            // No entry, broadcast through all ports except incoming port
+        if (out_port === undefined || this.parent.ports[out_port].blocked) {
             this.parent.limited_broadcast(packet,port);
         } else {
-            // Entry known, send packet according to stored port
             this.parent.send_packet(packet,out_port);
         }
 

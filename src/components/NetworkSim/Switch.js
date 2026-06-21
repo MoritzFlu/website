@@ -18,7 +18,22 @@ export default class Switch extends NetworkNode {
     init() {
         this.stp.init();
         this.ethernet.init();
-        this.renderer.register_event(this.id, "click", this.show_debug);
+        this.renderer.register_event(this.id, "click", () => {
+            if (!this.renderer.on_node_click) return;
+            this.renderer.on_node_click({
+                type: 'switch',
+                id: this.id,
+                stp: {
+                    is_root:   this.stp.is_root,
+                    root_id:   this.stp.root_id,
+                    bridge_id: this.stp.bridge_id,
+                    ports: Object.entries(this.stp.status).map(([i, s]) => ({
+                        port: Number(i), state: s.state, cost: s.cost,
+                        blocked: this.ports[i]?.blocked ?? false,
+                    })),
+                },
+            });
+        });
     }
 
     update() {

@@ -1,114 +1,153 @@
-import { IPV4_COLOR } from "./config"
+import { IPV4_COLOR } from "./config";
+
+import RoutingTable from "./RoutingTable";
 
 export class IPHeader {
-        version // e.g. 4 for IPv4
-        ihl // Ip header size
-        dscp // Differenciated Services Code Point
-        ecn // Congestion notificaitons
-        total_length // size of packet (including IP header and data field)
-        identification // rarely used
-        flags // reserved, dont fragment, more fragments
-        fragment_offset
-        ttl // time to live
-        protocol // L4 protocol
-        header_checksum // CHecksum of header
-        src // source address
-        dst // destination address
-        data // L4 data
-    }
+    version
+    ihl
+    dscp
+    ecn
+    total_length
+    identification
+    flags
+    fragment_offset
+    ttl
+    protocol
+    header_checksum
+    src
+    dst
+    data
+}
 
 export default class IPv4 {
     parent
     arp
     l2
+    icmp = null
+    routing_table
+    // Queue packets waiting for ARP resolution, keyed by the IP being resolved.
+    // Values are arrays of IPHeader objects.
+    queue = {}
+    l4_protos = {}
 
     constructor(parent) {
         this.parent = parent;
-        this.queue = {}
+        this.routing_table = new RoutingTable();
+        this.ethertype = 0x0800;
 
         this.receive = this.receive.bind(this);
         this.arp_callback = this.arp_callback.bind(this);
         this.init = this.init.bind(this);
         this.send = this.send.bind(this);
-
-        this.ethertype = 0x0800;
-
     }
 
+    // Populate routing table with directly-connected routes (called after ports exist).
     init() {
+        for (let i = 0; i < this.parent.ports.length; i++) {
+            let port = this.parent.ports[i];
+            for (let j = 0; j < port.l3Addr.length; j++) {
+                this.routing_table.add_route(port.l3Addr[j], null, i);
+            }
+        }
     }
 
-    // Handler to be called to get L2 address from L3 address
     register_arp(arp) {
         this.arp = arp;
-        // Tell ARP which function to call when an address gets resolved
         this.arp.register_address_callback(this.arp_callback);
     }
 
-    // Handler to send frame via
     register_l2(l2_handler) {
         this.l2 = l2_handler;
-        // Register handler for IP ethertype
-        this.l2.register_ethertype(0x0800,this.receive);
+        this.l2.register_ethertype(0x0800, this.receive);
     }
 
-    // TODO: handle multiple calls for asame address
-    arp_callback(mac, ip, port) {
-        //console.log("Received ARP reply for "+mac)
-        if (ip in this.queue) {
-            let packet = this.queue[ip];
+    // Register an L4 protocol handler (e.g. TCP=6, UDP=17, ICMP=1).
+    register_protocol(proto_num, handler) {
+        this.l4_protos[proto_num] = handler;
+    }
 
-            this.l2.send(mac, port, packet,this.ethertype, IPV4_COLOR);
+    // Optionally attach an ICMP instance so IPv4 can generate error messages.
+    register_icmp(icmp) {
+        this.icmp = icmp;
+    }
+
+    // Called by ARP when a pending address resolution completes.
+    arp_callback(mac, resolved_ip, port) {
+        const queued = this.queue[resolved_ip];
+        if (!queued) return;
+        delete this.queue[resolved_ip];
+        for (const pkt of queued) {
+            this.l2.send(mac, port, pkt, this.ethertype, pkt.color || IPV4_COLOR);
         }
     }
 
-    receive(packet) {
-        console.log("L3 RECEIVE",packet);
-    }
+    receive(header, port) {
+        header.ttl -= 1;
+        if (header.ttl <= 0) {
+            console.log("TTL expired dropping packet from", header.src, "to", header.dst);
+            if (this.icmp) this.icmp.time_exceeded(header);
+            return;
+        }
 
-    send(data,address) {
-        // First: Check which port to send data on
-        let out_port = null;
-        let src_addr = null;
+        // Check if this packet is destined for one of our own addresses.
         for (let i = 0; i < this.parent.ports.length; i++) {
-            let port = this.parent.ports[i];
-            
-            // Use first port that has an IP address range that matches destination
-            src_addr = port.check_subnet(address);
-            if (src_addr) {
-                out_port = port.id;
-                break
+            if (this.parent.ports[i].check_can_receive(header.dst)) {
+                const handler = this.l4_protos[header.protocol];
+                if (handler) {
+                    handler(header.data, header);
+                } else {
+                    console.log("No L4 handler for protocol", header.protocol, "on node", this.parent.id);
+                }
+                return;
             }
         }
 
-        // Exit if no viable port was found
-        if (out_port === null) {
-            console.log("No Port for address: "+address)
-            return
-        }
-        //console.log("PORT",out_port);
-
-        let packet = new IPHeader();
-        packet.data = data;
-        packet.version = 4;
-        packet.src = src_addr;
-        packet.dst = address;
-        packet.ttl = 40;
-        
-        // Second: Check if mac already known
-        let mac = this.arp.lookup(address, out_port);
-
-        if (mac === null) {
-            // No address known, queue and wait for ARP reply
-            this.queue[address] = data;
-        } else {
-            // Address known, send out
-            // Pass packet to L2 handler
-            this.l2.send(mac, out_port, packet,this.ethertype, IPV4_COLOR);
-        }
-
+        // Not for us — forward (router behaviour).
+        this._forward(header);
     }
 
+    _forward(header) {
+        const result = this.routing_table.lookup(header.dst);
+        if (!result) {
+            console.log("No route to", header.dst, "on node", this.parent.id);
+            if (this.icmp) this.icmp.unreachable(header);
+            return;
+        }
+        const resolve_ip = result.next_hop || header.dst;
+        const mac = this.arp.lookup(resolve_ip, result.port);
+        if (mac === null) {
+            if (!this.queue[resolve_ip]) this.queue[resolve_ip] = [];
+            this.queue[resolve_ip].push(header);
+        } else {
+            this.l2.send(mac, result.port, header, this.ethertype, header.color || IPV4_COLOR);
+        }
+    }
 
+    // color: optional packet color for visualization (DNS_COLOR, TCP_COLOR, etc.)
+    send(data, dst, protocol = 0, color = null) {
+        const result = this.routing_table.lookup(dst);
+        if (!result) {
+            console.log("No route to", dst, "on node", this.parent.id);
+            return;
+        }
 
+        const packet = new IPHeader();
+        packet.data = data;
+        packet.version = 4;
+        packet.src = this.parent.ports[result.port].get_l3addr_witout_subnet(0);
+        packet.dst = dst;
+        packet.ttl = 64;
+        packet.protocol = protocol;
+        packet.color = color || IPV4_COLOR;
+
+        const resolve_ip = result.next_hop || dst;
+        const mac = this.arp.lookup(resolve_ip, result.port);
+
+        if (mac === null) {
+            if (!this.queue[resolve_ip]) this.queue[resolve_ip] = [];
+            this.queue[resolve_ip].push(packet);
+        } else {
+            this.l2.send(mac, result.port, packet, this.ethertype, packet.color);
+        }
+    }
 }

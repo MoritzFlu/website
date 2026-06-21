@@ -27,9 +27,8 @@ export default class ARP {
         this.layer2 = layer2;
         this.table = {};
         this.address_callback = null
-
-        // TODO: add timeout to queue
         this.lookup_queue = {};
+        this._pending = new Set();  // IPs with an outstanding ARP request
 
         this.init = this.init.bind(this);
         this.lookup = this.lookup.bind(this);
@@ -40,19 +39,21 @@ export default class ARP {
         this.ethertype = 0x0806;
     }
 
-    // Perform lookup on all 
+    // Pre-populate table with this node's own addresses
     init() {
-        // Loop over all ports and store their adresses
-        // TODO: this should be updateable when new addresses are assigned
         for (let i = 0; i < this.node.ports.length; i++) {
             let port = this.node.ports[i];
-            this.table[port.l3Addr] = {
-                l2Addr: port.l2Addr,
-                port: i
-            };
+            for (let j = 0; j < port.l3Addr.length; j++) {
+                this.table[port.get_l3addr_witout_subnet(j)] = port.l2Addr;
+            }
         }
 
         this.layer2.register_ethertype(0x0806,this.receive);
+    }
+
+    // Pre-populate a static IP→MAC entry (called before init(), safe to call during topology build).
+    seed_arp(ip, mac) {
+        this.table[ip] = mac;
     }
 
     register_address_callback(callback) {
@@ -105,23 +106,22 @@ export default class ARP {
         this.layer2.send(header.sha,port,reply,this.ethertype,ARP_COLOR);
     }
 
-    // TODO: better handling, store info per port
     handle_answer(header,port) {
-        // add entry to ARP table
         this.table[header.spa] = header.sha;
+        this._pending.delete(header.spa);
         this.address_callback(header.sha, header.spa, port);
     }
 
-    // Sends ARP packet to perform IP lookup
     lookup(adress,port) {
-        // Check if address is already known
         let mac = this.table[adress];
         if (mac === undefined) {
-            this.send_request(adress, port);
-            // TODO: add hook wait for reply
+            // Only send one ARP request per unresolved IP; IPv4 queues the packets.
+            if (!this._pending.has(adress)) {
+                this._pending.add(adress);
+                this.send_request(adress, port);
+            }
             return null;
         }  else {
-            // Adress is known
             return mac;
         }
     }

@@ -60,6 +60,7 @@ export default class NetworkNode {
         dest_port.set_destination(source_port);
         // Dest port needs to do animations reversed
         dest_port.set_reversed();
+        return [source_port, dest_port];
     }
 
     send_packet(packet, port) {

@@ -14,14 +14,13 @@ export default class STP {
     status_text
 
     root_path_cost = 0
-    
+    hello_count = 0
+
     // Type used in packets:
     type = 0;
 
-    // Scale is normal *4 since packets travel slow
-    // Should always be faster than longest link transmission time
-    // TODO: bind to time scale
-    hello_time = Config.TIME_SCALE * 2;
+    // Fast during convergence, slow after. Switched in update() after hello_count >= 2.
+    hello_time = Config.STP_HELLO_FAST;
 
     constructor(bridge_id, parent) {
         this.parent = parent;
@@ -41,34 +40,31 @@ export default class STP {
 
     // STP initial actions
     init() {
-
-        // This call could be updated to parent class type of all modules
-        // Should be a moduel such that not "this" is always passed
         this.parent.register_packet_handler(this.type, this.receive);
 
-        // Init status for all ports
-        // Note that the port IDs start at one
         for (let i = 0; i < this.parent.ports.length; i++) {
             this.status[i] = {
-                // One of: RP, DP, NDP
                 id: i,
                 state: "Start",
                 cost: this.parent.ports[i].speed
             };
         }
 
-        // TODO: Add handler to show  information on click
+        // Start as self-declared root (golden glow); cleared when a better root is found.
+        this.parent.renderer.set_stp_root(this.parent.id, true);
         this.update();
     }
 
     update() {
+        this.hello_count++;
 
         for (let i = 0; i < this.parent.ports.length; i++) {
             // Send initial BPDU
+            // Root bridge always advertises cost 0 (its cost to reach itself).
+            // Non-root bridges advertise the cost stored for each DP port.
             let bpdu = new Packet(this.type, {
                 root: this.root_id,
-                // TODO: pass cost from link transmission duration
-                cost: this.status[i].cost,
+                cost: this.is_root ? 0 : this.status[i].cost,
                 id: this.bridge_id,
                 port: i
             }, Config.BPDU_COLOR);
@@ -77,12 +73,27 @@ export default class STP {
             // TODO: this should be done automatically via the ports state, and only call this.parent.broadcast here
             let is_not_rp = !(this.status[i].state === "RP");
             let is_not_ndp = !(this.status[i].state === "NDP");
-            if ( is_not_rp & is_not_ndp) {
+            if ( is_not_rp && is_not_ndp) {
                 this.parent.ports[i].send_packet(bpdu);
             }
 
         }
-        setTimeout(this.update, this.hello_time);
+        if (this.hello_count === 5) {
+            this.hello_time = Config.STP_HELLO_SLOW;
+            // Flush stale MAC entries accumulated during pre-convergence flooding.
+            // Non-root switches flush via update_root_port; root bridge has no RP
+            // so it must flush here when the convergence phase ends.
+            if (this.is_root) {
+                this.parent.ethernet.flush();
+            }
+            // One-time phase spread: place this switch at a random point in the slow
+            // interval so it never fires in sync with the rest.
+            setTimeout(this.update, Math.random() * Config.STP_HELLO_SLOW);
+        } else {
+            // After phase is set, ±50 % jitter prevents re-synchronisation over time.
+            const jitter = this.hello_count > 2 ? (0.5 + Math.random()) : 1.0;
+            setTimeout(this.update, this.hello_time * Config.sim.time_factor * jitter);
+        }
     }
 
     show_root_path() {
@@ -109,26 +120,23 @@ export default class STP {
     }
 
     update_root_port(port, cost) {
-        // Root port is updatedd, reset all other port states
-        if (cost === undefined) {
-            console.log(this);
-        }
         for (let i = 0; i < Object.keys(this.status).length; i++) {
             if (i === port) {
                 this.status[i].state = "RP";
                 this.status[i].cost = cost;
-            } else {
+                this.parent.ports[i].unblock();
+            } else if (this.status[i].state !== "NDP") {
+                // Only touch non-NDP ports. NDP ports stay blocked — re-opening
+                // them here is what causes the oscillating loop where a port
+                // cycles between NDP (blocked) and DP (open) on every BPDU.
                 this.status[i].state = "DP";
-                let speed = this.parent.ports[i].speed;
-                if (speed === undefined) {
-                    console.log(this);
-                }
-                this.status[i].cost = cost + speed;
+                this.status[i].cost = cost + this.parent.ports[i].speed;
+                this.parent.ports[i].unblock();
             }
-
-            // Ensure that all ports are not blocked and can send packets
-            this.parent.ports[i].unblock();
         }
+        // Flush MAC table on topology change (TCN) so entries learned during
+        // the pre-convergence flood don't persist on the now loop-free topology.
+        this.parent.ethernet.flush();
     }
 
     get_RP() {
@@ -152,11 +160,11 @@ export default class STP {
         // Check if root id has to be updated
         // TODO: is race condition with sending BPDUs?
         if (data.root < this.root_id) {
-            //console.log("Updated root id from to",this.root_id, data.root);
-            this.is_root = false;
             this.root_id = data.root;
-
-            // Set root port
+            if (this.is_root) {
+                this.is_root = false;
+                this.parent.renderer.set_stp_root(this.parent.id, false);
+            }
             this.update_root_port(port, data.cost);
             return;
         }
@@ -190,8 +198,10 @@ export default class STP {
         // -----------------------------------
 
         // Check if the advertised root path cost is lower than this ports cost
-        // If yes, then change port state to non-designated port
-        let lower_cost_advertised = (data.cost < port_obj.cost); // Other bridge advertises lower cost on network segment
+        // If yes, then change port state to non-designated port.
+        // Tiebreak equal costs by bridge ID (lower ID = better designated bridge → we yield).
+        let lower_cost_advertised = (data.cost < port_obj.cost)
+            || (data.cost === port_obj.cost && data.id < this.bridge_id);
         let received_on_non_rp = (port_obj.state !== "RP"); // Current port is not a root port, this is handled above already
         if ( lower_cost_advertised && received_on_non_rp && correct_root ) {
             // Make port blocking
