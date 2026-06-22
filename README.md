@@ -43,3 +43,7 @@ npm run build
 ## Notes
 
 This is a personal project and research website, not a general-purpose network simulator. The simulator is intentionally simplified in places so that protocol behavior remains visible and understandable in the browser.
+
+## License
+
+This project is licensed under the MIT License.

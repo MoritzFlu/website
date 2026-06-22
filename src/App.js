@@ -4,8 +4,8 @@ import theme from './data/MyTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import HomePage from './components/HomePage/HomePage';
-import DemoPage from './components/DemoPage/DemoPage';
+import HomePage from './features/home/HomePage';
+import DemoPage from './features/demo/DemoPage';
 
 function App() {
   return (

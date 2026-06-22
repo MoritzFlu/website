@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+</style>
+</helmet>
+
+<div style="width:max-content;min-width:100%;min-height:100vh;box-sizing:border-box;padding:56px;background:#e7e5df;font-family:'Space Grotesk',sans-serif;display:flex;flex-direction:column;gap:40px;">
+
+  <div style="max-width:640px;">
+    <h1 style="margin:0 0 10px;font-size:34px;font-weight:600;letter-spacing:-0.02em;color:#1e1e1b;">vim-forcer</h1>
+    <p style="margin:0;font-size:15px;line-height:1.55;color:#5c5c55;">The struck-out <strong style="color:#1e1e1b;">nano</strong> wordmark — vim wins by deletion. Shown large, at README and favicon scale, on light and dark.</p>
+  </div>
+
+  <div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap;">
+
+    <!-- large + sizes on light -->
+    <div style="flex:none;width:460px;">
+      <div style="margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6a6a62;letter-spacing:.04em;">ON LIGHT</span></div>
+      <div style="background:#fff;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.09);padding:40px;display:flex;flex-direction:column;align-items:center;gap:32px;">
+        <!-- 200 -->
+        <div style="width:200px;height:200px;border-radius:22.5%;background:#1FA055;position:relative;flex:none;display:flex;align-items:center;justify-content:center;">
+          <span style="position:relative;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:50px;line-height:1;color:#F5FBF6;letter-spacing:-0.02em;">nano<span style="position:absolute;left:-9%;right:-9%;top:48%;height:11px;background:#E5604D;border-radius:3px;transform:translateY(-50%) rotate(-7deg);"></span></span>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:26px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:64px;height:64px;border-radius:22.5%;background:#1FA055;position:relative;flex:none;display:flex;align-items:center;justify-content:center;"><span style="position:relative;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;line-height:1;color:#F5FBF6;letter-spacing:-0.02em;">nano<span style="position:absolute;left:-9%;right:-9%;top:48%;height:4px;background:#E5604D;border-radius:2px;transform:translateY(-50%) rotate(-7deg);"></span></span></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9a9a90;">64</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:32px;height:32px;border-radius:22.5%;background:#1FA055;position:relative;flex:none;display:flex;align-items:center;justify-content:center;"><span style="position:relative;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:8px;line-height:1;color:#F5FBF6;letter-spacing:-0.03em;">nano<span style="position:absolute;left:-9%;right:-9%;top:48%;height:2px;background:#E5604D;border-radius:1px;transform:translateY(-50%) rotate(-7deg);"></span></span></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#9a9a90;">32</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- on dark + readme -->
+    <div style="flex:none;width:460px;">
+      <div style="margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6a6a62;letter-spacing:.04em;">ON DARK · IN CONTEXT</span></div>
+      <div style="background:#16191a;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.09);padding:40px;display:flex;flex-direction:column;align-items:center;gap:32px;">
+        <div style="width:200px;height:200px;border-radius:22.5%;background:#1FA055;position:relative;flex:none;display:flex;align-items:center;justify-content:center;">
+          <span style="position:relative;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:50px;line-height:1;color:#F5FBF6;letter-spacing:-0.02em;">nano<span style="position:absolute;left:-9%;right:-9%;top:48%;height:11px;background:#E5604D;border-radius:3px;transform:translateY(-50%) rotate(-7deg);"></span></span>
+        </div>
+        <div style="width:100%;display:flex;align-items:center;gap:12px;background:#0e1011;border:1px solid #24292a;border-radius:8px;padding:13px 16px;">
+          <div style="width:28px;height:28px;border-radius:22.5%;background:#1FA055;position:relative;flex:none;display:flex;align-items:center;justify-content:center;"><span style="position:relative;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:7px;line-height:1;color:#F5FBF6;letter-spacing:-0.03em;">nano<span style="position:absolute;left:-9%;right:-9%;top:48%;height:2px;background:#E5604D;border-radius:1px;transform:translateY(-50%) rotate(-7deg);"></span></span></div>
+          <span style="font-family:'JetBrains Mono',monospace;color:#e8e8e4;font-size:14px;">vim-forcer</span>
+          <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;color:#5fae7e;font-size:12px;">v1.0</span>
+        </div>
+        <p style="margin:0;align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#8a958c;">$ nano todo.md<br><span style="color:#5fae7e;">→ vim-forcer: swapped to vim</span></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
