@@ -1,0 +1,44 @@
+name: Deploy website
+
+# Only deploy on direct pushes to main.
+# IMPORTANT: do NOT add `pull_request` here — on a public repo that would let
+# anyone's forked PR run code on your self-hosted runner.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # lets you trigger a manual redeploy from the Actions tab
+
+# Never run two deploys at once; a newer push cancels an in-flight one.
+concurrency:
+  group: deploy-website
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # The Apache container serves files from a host folder mounted into it.
+      # Replace the contents of that folder with the fresh build.
+      # --delete removes files that no longer exist in the build, EXCEPT the
+      # paths listed in --exclude, which are left untouched (e.g. me.jpg lives
+      # only on the server and is intentionally not committed to the repo).
+      - name: Deploy to mounted volume
+        env:
+          TARGET_DIR: /home/harry/Webserver/www/moritz-fl.de
+        run: |
+          rsync -a --delete --exclude='me.jpg' build/ "$TARGET_DIR/"

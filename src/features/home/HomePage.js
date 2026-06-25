@@ -7,9 +7,9 @@ import publicationDict from '../../data/Publications';
 import projectsDict from '../../data/Projects';
 
 const links = [
-  { label: 'University', href: 'https://kn.inf.uni-tuebingen.de/' },
-  { label: 'Google Scholar', href: 'https://scholar.google.com/' },
-  { label: 'GitHub', href: 'https://github.com/' },
+  { label: 'University', href: 'https://uni-tuebingen.de/fakultaeten/mathematisch-naturwissenschaftliche-fakultaet/fachbereiche/informatik/lehrstuehle/kommunikationsnetze/staff/moritz-fluechter/' },
+  { label: 'Google Scholar', href: 'https://scholar.google.com/citations?user=P15hesUAAAAJ&hl=en' },
+  { label: 'GitHub', href: 'https://github.com/MoritzFlu' },
 ];
 
 const navItems = [

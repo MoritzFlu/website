@@ -41,7 +41,7 @@ const publicationDict = {
         "date": "15 June 2026",
         "venue": "Journal of Network and Computer Applications",
         "authors": "Moritz Flüchter, Steffen Lindner, Fabian Ihle, Toerless Eckert, Michael Menth",
-        "link": "https://arxiv.org/abs/2409.07082",
+        "link": "https://www.sciencedirect.com/science/article/pii/S1084804526001153",
         "type": "journal"
     },
 }
